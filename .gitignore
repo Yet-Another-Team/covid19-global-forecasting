@@ -1,5 +1,6 @@
 // ---alpheus-managed-start---
 **/*.hash
 .alpheus/storage
+jhu_data/
 official_data/
 // ---alpheus-managed-end---
