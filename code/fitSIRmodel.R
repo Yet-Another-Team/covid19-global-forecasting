@@ -212,10 +212,24 @@ max_val <- max(c(obsSource$infected,obsSource$removed)) * 1.1
 latest_obs <- max(obsSource$day.num) + 1
 earliest_obs <- min(obsSource$day.num)
 
+obsFName <- basename(sirObsFile)
+obsFName <- substr(obsFName,1,(nchar(obsFName)-4))
+atPos = regexpr('@',obsFName)[1]
+if(atPos == -1) {
+  descr <- "worldwide"
+} else {
+  if(atPos>1)
+    province <- paste0(substr(obsFName,1,atPos-1),' - ')
+  else
+    province <- ''
+  country <- substr(obsFName,atPos+1,nchar(obsFName))
+  descr <-paste0(province, country)
+}
+
 p <- ggplot()
 p <- plotObsTable(bestPrediction,p)
 p <- plotPredTable(bestPrediction,p) +
-  labs(title = "SIR model fit",
+  labs(title = paste0("SIR model fit [",descr,"]"),
        subtitle = paste0("R0 = ",round(r0,1),
               " beta = ",round(beta,2),
               ' gamma = ',round(gamma,2),
