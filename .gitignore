@@ -3,4 +3,6 @@
 .alpheus/storage
 jhu_data/
 official_data/
+per_location_data/*.csv
 // ---alpheus-managed-end---
+venv
