@@ -1,0 +1,5 @@
+// ---alpheus-managed-start---
+**/*.hash
+.alpheus/storage
+official_data/
+// ---alpheus-managed-end---

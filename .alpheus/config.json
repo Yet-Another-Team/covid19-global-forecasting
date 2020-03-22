@@ -1,0 +1,12 @@
+{
+  "FileFormatVersion": 1,
+  "Storage": {
+    "local": {
+      "Case": "Directory",
+      "Fields": [
+        ".alpheus/storage"
+      ]
+    }
+  },
+  "DefaultStorage": "local"
+}

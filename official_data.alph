@@ -1,0 +1,13 @@
+{
+  "FileFormatVersion": 1,
+  "Origin": {
+    "Case": "SourceOrigin",
+    "Fields": [
+      {
+        "RelativePath": "official_data\\",
+        "Hash": "20E5C11675C5334D3C87065C1DCFD40D8A51C8645C32B111E330965091E085B2C321A7203B29AFFA10A2662C6B4F5B7B42947D7720000EE04EEBBDDE887B96A7"
+      }
+    ]
+  },
+  "IsTracked": true
+}
