@@ -1,0 +1,40 @@
+{
+  "FileFormatVersion": 1,
+  "Origin": {
+    "Case": "CommandOrigin",
+    "Fields": [
+      {
+        "Inputs": [
+          {
+            "RelativePath": "..\\code\\fitSIRmodel.R",
+            "Hash": null
+          },
+          {
+            "RelativePath": "..\\per_location_data\\*.csv",
+            "Hash": null
+          }
+        ],
+        "Outputs": [
+          {
+            "RelativePath": "*.json",
+            "Hash": null
+          },
+          {
+            "RelativePath": "*.png",
+            "Hash": null
+          }
+        ],
+        "ResourceGroups": [],
+        "SuccessfulExitCodes": [
+          0
+        ],
+        "OutputIndex": 0,
+        "WorkingDirectory": "..",
+        "Command": "RScript $in1 $in2 $out1 $out2",
+        "Signature": "6F42B9A1A6D13299CD6061382090CD9EFFC6E8FD",
+        "OutputsCleanDisabled": false
+      }
+    ]
+  },
+  "IsTracked": false
+}

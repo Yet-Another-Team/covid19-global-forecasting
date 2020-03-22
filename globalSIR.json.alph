@@ -1,0 +1,40 @@
+{
+  "FileFormatVersion": 1,
+  "Origin": {
+    "Case": "CommandOrigin",
+    "Fields": [
+      {
+        "Inputs": [
+          {
+            "RelativePath": "code\\fitSIRmodel.R",
+            "Hash": null
+          },
+          {
+            "RelativePath": "globalSirTs.csv",
+            "Hash": null
+          }
+        ],
+        "Outputs": [
+          {
+            "RelativePath": "globalSIR.json",
+            "Hash": null
+          },
+          {
+            "RelativePath": "globalSIR.png",
+            "Hash": null
+          }
+        ],
+        "ResourceGroups": [],
+        "SuccessfulExitCodes": [
+          0
+        ],
+        "OutputIndex": 0,
+        "WorkingDirectory": ".",
+        "Command": "RScript $in1 $in2 $out1 $out2",
+        "Signature": "12A4A2C4F3C4BB265C96962775079D986260E9D5",
+        "OutputsCleanDisabled": false
+      }
+    ]
+  },
+  "IsTracked": false
+}
