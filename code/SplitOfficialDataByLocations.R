@@ -5,6 +5,8 @@ require(stringr)
 jhuInputDir <- args[1]
 populationCountFile <- args[2]
 outputPattern <- args[3] # should end with *.csv
+globalOutputFile <- args[4]
+minAllowedConfirmedCount <- as.integer(args[5])
 
 asterixPos = regexpr('\\*',outputPattern)[1]
 outDir <- substr(outputPattern,1,asterixPos-2)
@@ -53,6 +55,9 @@ get_site_df <- function(province,country, N) {
   return(merged2)
 }
 
+globalTs <- NULL
+globalPopulation <- 7700000000
+
 for(i in (1:nrow(population))) {
   province <- as.character(population[i,1])
   country <- as.character(population[i,2])
@@ -63,6 +68,16 @@ for(i in (1:nrow(population))) {
     print(paste0("Can't find data for province '",province,"' country '",country,"'"))
     next;
   }
+  if(is.null(globalTs))
+    globalTs <- df
+  else
+    globalTs[,2:6] <- globalTs[,2:6] + df[,2:6]
+  
+  maxConfirmed <- max(df$confirmed)
+  if(maxConfirmed < minAllowedConfirmedCount) {
+    print(paste0("Skipping province '",province,"' country '",country,"' due to too low confirmed cases: ",maxConfirmed))
+    next; 
+  }
   key <- paste0(province,'@', country)
   key <- str_replace(key," ","_")
   key <- str_replace(key,"\\*","#")
@@ -70,4 +85,9 @@ for(i in (1:nrow(population))) {
   #print(paste0('Writing ',outFile))
   write.csv(df,outFile, row.names = F)
 }
+
+#writing global
+globalTs$susceptible <- globalPopulation - globalTs$infected - globalTs$removed
+write.csv(globalTs,globalOutputFile, row.names = F)
+
 print("Done")

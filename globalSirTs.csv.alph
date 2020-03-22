@@ -6,21 +6,21 @@
       {
         "Inputs": [
           {
-            "RelativePath": "..\\code\\SplitOfficialDataByLocations.R",
+            "RelativePath": "code\\SplitOfficialDataByLocations.R",
             "Hash": "4F0F5D2E801F6E43CC057CAB1A9FE8CD1AC3CABDB9C1450029F7C21621716BA77938E7B961ED6F5BD0B7E0A2C591C56EAE10D0E6A7540270E57582E08BE6CD45"
           },
           {
-            "RelativePath": "..\\jhu_data\\",
+            "RelativePath": "jhu_data\\",
             "Hash": "D7C3BCE9F434F39DF9DBC43A65FB0F1EDE23F83CFA0A91B3B45A1296C81C03B17AC57B38A547AA596027BF40744192720AFE327557DC054AD0B06D2583159AF4"
           },
           {
-            "RelativePath": "..\\manual_data\\locations_population.csv",
+            "RelativePath": "manual_data\\locations_population.csv",
             "Hash": "865902A9089B0DD7002C94CC9311F6D20E8088E1B311DE330C2794A053A0EE6BDF3F52A7E736D23F86AA7A5BF94A56360FFFDCAD455EE5CC5D2FC09CFA12CFD3"
           }
         ],
         "Outputs": [
           {
-            "RelativePath": "*.csv",
+            "RelativePath": "per_location_data\\*.csv",
             "Hash": {
               "@Albania": "69A43F16070E9DFD549C19A9D505042EAF11B27752490742153B75466B628E9B5FE225BB0CBE8CC50F6CCEC47E303ACC7EEC5BE2E2815407ED8E4FB74894A853",
               "@Algeria": "23062A5C446970FE561AA0C49A87CF3ED36D332C4ABE7D8BE05803759E6F90332DA3200088E79D30362F1AC47D774CEC473AB4B293851E040E5BB1E1CB4377A8",
@@ -195,7 +195,7 @@
             }
           },
           {
-            "RelativePath": "..\\globalSirTs.csv",
+            "RelativePath": "globalSirTs.csv",
             "Hash": "E40EF05BC3358850D7A4C90F8E281FAAC4FE250CFC0281CEAF6BD4CF25DB42C2991B9E215CBDE2B16E82D8CF99568AF109208B99861B1DCA7454F22FFE7EC800"
           }
         ],
@@ -203,13 +203,13 @@
         "SuccessfulExitCodes": [
           0
         ],
-        "OutputIndex": 0,
-        "WorkingDirectory": "..",
+        "OutputIndex": 1,
+        "WorkingDirectory": ".",
         "Command": "RScript $in1 $in2 $in3 $out1 $out2 50",
-        "Signature": "CAE52F4648BF076C2FE30D431DDA78A7A1EA2CB3",
+        "Signature": "D9225A84B72B6F9B92D420A45B6C17CC947482E9",
         "OutputsCleanDisabled": false
       }
     ]
   },
-  "IsTracked": true
+  "IsTracked": false
 }
