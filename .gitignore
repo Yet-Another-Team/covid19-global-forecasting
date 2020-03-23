@@ -1,15 +1,15 @@
 // ---alpheus-managed-start---
 **/*.hash
 .alpheus/storage
+SIR_IR_min_bound/per_controlled_location_data/*.csv
+SIR_IR_min_bound/per_controlled_location_data_gathered/
+SIR_IR_min_bound/per_evolving_location_data/*.csv
+SIR_IR_min_bound/per_evolving_location_data_gathered/
+SIR_IR_min_bound/per_evolving_location_fitted/*.json
+SIR_IR_min_bound/per_evolving_location_fitted/*.png
+SIR_IR_min_bound/per_location_data/*.csv
+SIR_IR_min_bound/per_location_data_gathered/
 jhu_data/
 official_data/
-SIR_IR_min_bound/per_location_data/*.csv
-SIR_IR_min_bound/per_controlled_location_data_gathered/
-SIR_IR_min_bound/per_evolving_location_data_gathered/
-SIR_IR_min_bound/per_location_data_gathered/
-SIR_IR_min_bound/per_controlled_location_data/*.csv
-SIR_IR_min_bound/per_evolving_location_data/*.csv
-SIR_IR_min_bound/per_evolving_location_fitted/*.png
-SIR_IR_min_bound/per_evolving_location_fitted/*.json
 // ---alpheus-managed-end---
 venv

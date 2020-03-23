@@ -57,10 +57,12 @@ getPrediction <- function(p) {
   gamma = sigmoid(p[4]) # fixed fraction "gamma"  of the infected group will recover during any given day
   N = abs(p[5])
   
-  odeDays <- seq(zeroDayNum %/% 1, 366, by = 0.1)
+  zeroDayNum <- zeroDayNum %/% 1
+  
+  odeDays <- seq(zeroDayNum, zeroDayNum+366, by = 0.1)
   odeParameters <- c(b = beta, k=gamma, N=N)
   # R0 = b / k
-  odeZeroState <- c(S=popCount, I = firstDayInfectedCount,R=0)
+  odeZeroState <- c(S=N, I = firstDayInfectedCount,R=0)
   
   out <- as.data.frame(ode(y = odeZeroState, times = odeDays, func = SIR, parms = odeParameters))
   names(out) <- c('days','susceptible.pred','infected.pred','removed.pred')
@@ -72,6 +74,8 @@ getPrediction <- function(p) {
 getPredRunTable<-function(p) {
   out <- getPrediction(p)
   
+  pop <- abs(p[5])
+  
   m1 <- merge(obs,out, by='days',all.x = T)
   
   # filling up out of range values
@@ -79,7 +83,7 @@ getPredRunTable<-function(p) {
   latestOut <- out[nrow(out),]
   
   if(sum(is.na(m1$susceptible.pred) & m1$days<=erliestOut$days)>0)
-    m1[is.na(m1$susceptible.pred) & m1$days<=erliestOut$days,]$susceptible.pred <- popCount
+    m1[is.na(m1$susceptible.pred) & m1$days<=erliestOut$days,]$susceptible.pred <- pop
   if(sum(is.na(m1$susceptible.pred) & m1$days>=latestOut$days)>0)
     m1[is.na(m1$susceptible.pred) & m1$days>=latestOut$days,]$susceptible.pred <- latestOut$susceptible.pred
   
