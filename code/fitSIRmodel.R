@@ -118,8 +118,8 @@ for(i in (1:optIters)) {
   #print(toMinimize(startP)) # loss value at start
   optCtr <- list(trace=0,maxit=10000) # set trace to value higher than 0, if you want details
   curOptRes <- optim(startP, toMinimize,control = optCtr)
-  #if(curOptRes$convergence != 0)
-  #  next; # we analyze only converged results
+  if(curOptRes$convergence != 0)
+    next; # we analyze only converged results
   if(is.null(optRes) || optRes$value > curOptRes$value) {
     optRes <- curOptRes
     print(paste0("Iteration ",i,": loss improved to ",optRes$value))

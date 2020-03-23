@@ -4,5 +4,7 @@
 jhu_data/
 official_data/
 per_location_data/*.csv
+per_location_model_results/*.json
+per_location_model_results/*.png
 // ---alpheus-managed-end---
 venv

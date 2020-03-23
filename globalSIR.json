@@ -1,0 +1,8 @@
+{
+ "rmse": 50337.55,
+"zeroDayNum": -7.383775,
+"firstDayInfectedCount":       14,
+"beta": 0.196259,
+"gamma": 0.08830373,
+"r0": 2.222545 
+}

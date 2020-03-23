@@ -79,8 +79,8 @@ for(i in (1:nrow(population))) {
     next; 
   }
   key <- paste0(province,'@', country)
-  key <- str_replace(key," ","_")
-  key <- str_replace(key,"\\*","#")
+  key <- str_replace_all(key," ","_")
+  key <- str_replace_all(key,"\\*","#")
   outFile <- file.path(outDir,paste0(key,'.csv'))
   #print(paste0('Writing ',outFile))
   write.csv(df,outFile, row.names = F)

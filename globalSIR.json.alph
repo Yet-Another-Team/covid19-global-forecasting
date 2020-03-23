@@ -7,21 +7,21 @@
         "Inputs": [
           {
             "RelativePath": "code\\fitSIRmodel.R",
-            "Hash": null
+            "Hash": "A7DF45050B808A861571F3EDD82D4BEC449C5BFB49FBEF0FFE806506F67071A83CB6EC306FBCBC32C6691EA0E5BC1845723058EE9C89A2EBA26D26D6AF8E562E"
           },
           {
             "RelativePath": "globalSirTs.csv",
-            "Hash": null
+            "Hash": "E40EF05BC3358850D7A4C90F8E281FAAC4FE250CFC0281CEAF6BD4CF25DB42C2991B9E215CBDE2B16E82D8CF99568AF109208B99861B1DCA7454F22FFE7EC800"
           }
         ],
         "Outputs": [
           {
             "RelativePath": "globalSIR.json",
-            "Hash": null
+            "Hash": "D2034457638FE9F33268AABDE4357CC146087A5350B705B1FF9C08C38FE4493280435D74A1AB48E17C03B349EEF1DE8C4F1AC01E4341504466BF8054E98CAB6F"
           },
           {
             "RelativePath": "globalSIR.png",
-            "Hash": null
+            "Hash": "B9650544E00795BE4E371E30B942888B253019E460A34C1DE402CB8C5F8EDE2F48A75EFB607DDB352F8AA444872E0C485D8B6C9ADF900FF65C7914603B1B62E8"
           }
         ],
         "ResourceGroups": [],
