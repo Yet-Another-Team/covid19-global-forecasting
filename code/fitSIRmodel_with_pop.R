@@ -55,10 +55,10 @@ getPrediction <- function(p) {
   firstDayInfectedCount = abs(p[2])
   beta = abs(p[3]) # each infected individual has a fixed number "beta"  of contacts per day that are sufficient to spread the disease
   gamma = sigmoid(p[4]) # fixed fraction "gamma"  of the infected group will recover during any given day
-  
+  N = abs(p[5])
   
   odeDays <- seq(zeroDayNum %/% 1, 366, by = 0.1)
-  odeParameters <- c(b = beta, k=gamma, N=popCount)
+  odeParameters <- c(b = beta, k=gamma, N=N)
   # R0 = b / k
   odeZeroState <- c(S=popCount, I = firstDayInfectedCount,R=0)
   
@@ -114,7 +114,9 @@ for(i in (1:optIters)) {
   startP = c(firstDayIdx-(optIters %/% 2)+i, # when the infection started
              1, # how many infected on the first day
              0.5, # beta
-             1/3) # gamma
+             1/3,# gamma
+             popCount
+             ) 
   #print(toMinimize(startP)) # loss value at start
   optCtr <- list(trace=0,maxit=10000) # set trace to value higher than 0, if you want details
   curOptRes <- optim(startP, toMinimize,control = optCtr)
@@ -134,6 +136,7 @@ firstDayInfectedCount = round(abs(optRes$par[2]))
 beta = abs(optRes$par[3])
 gamma = sigmoid(optRes$par[4])
 r0 = beta/gamma
+pop = abs(optRes$par[5])
 
 paramsList <- list()
 paramsList$rmse <- rmse
@@ -142,6 +145,7 @@ paramsList$firstDayInfectedCount <- firstDayInfectedCount
 paramsList$beta <- beta
 paramsList$gamma <- gamma
 paramsList$r0 <- r0
+paramsList$population <- pop
 
 exportJson <- toJSON(paramsList)
 write(exportJson, paramsOutFile)
@@ -233,7 +237,8 @@ p <- plotPredTable(bestPrediction,p) +
        subtitle = paste0("R0 = ",round(r0,1),
               " beta = ",round(beta,2),
               ' gamma = ',round(gamma,2),
-              ' rmse = ',round(rmse)))+
+              ' rmse = ',round(rmse),
+              ' population = ',pop))+
   scale_y_continuous(limits=c(0,max_val)) +
   scale_x_continuous(limits=c(earliest_obs,latest_obs))
 

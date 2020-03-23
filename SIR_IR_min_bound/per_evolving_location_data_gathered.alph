@@ -1,0 +1,36 @@
+{
+  "FileFormatVersion": 1,
+  "Origin": {
+    "Case": "CommandOrigin",
+    "Fields": [
+      {
+        "Inputs": [
+          {
+            "RelativePath": "..\\code\\filterEvolvingCountries.R",
+            "Hash": "F8C13B5D7BEFAC38C25F7C624D47664937CBD3358C3610BC043D30581BDCA270EF6ED91C6A61F7F6351BDE9D8C5F19D0A0C957FDA1B36FC4BDC5A444DDE1348F"
+          },
+          {
+            "RelativePath": "per_location_data_gathered\\",
+            "Hash": "9F862F4F033E3E8692686EF347E53CED3EA26D00A81C5BB46A6BDD624F49F56750522F4174FC2410C0E88C70640A0F8F15BD6B253D0D309DCACE554EA0E4B0D8"
+          }
+        ],
+        "Outputs": [
+          {
+            "RelativePath": "per_evolving_location_data_gathered\\",
+            "Hash": "6BA99EE21EDB80577B0EFFDCB6BD445F0C9997D97697D6000EAB83FE867C9DCCCBEE29F29352B5712AB049898CDDEB13643B27FB0444D5FC7A6F857EB7270C58"
+          }
+        ],
+        "ResourceGroups": [],
+        "SuccessfulExitCodes": [
+          0
+        ],
+        "OutputIndex": 0,
+        "WorkingDirectory": ".",
+        "Command": "RScript $in1 $in2 $out1",
+        "Signature": "4AD6748328E294AFC2F6F4154DD86199DE4B7135",
+        "OutputsCleanDisabled": false
+      }
+    ]
+  },
+  "IsTracked": false
+}

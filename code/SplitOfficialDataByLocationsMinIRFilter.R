@@ -7,6 +7,7 @@ populationCountFile <- args[2]
 outputPattern <- args[3] # should end with *.csv
 globalOutputFile <- args[4]
 minAllowedConfirmedCount <- as.integer(args[5])
+minAllowedRemovedCount <- as.integer(args[6])
 
 asterixPos = regexpr('\\*',outputPattern)[1]
 outDir <- substr(outputPattern,1,asterixPos-2)
@@ -74,11 +75,18 @@ for(i in (1:nrow(population))) {
     globalTs[,2:6] <- globalTs[,2:6] + df[,2:6]
   
   maxConfirmed <- max(df$confirmed)
+  maxRemoved <- max(df$removed)
   if(maxConfirmed < minAllowedConfirmedCount) {
     print(paste0("Skipping province '",province,"' country '",country,"' due to too low confirmed cases: ",maxConfirmed))
     next; 
   }
-  key <- paste0(province,'@', country)
+  if(maxRemoved < minAllowedRemovedCount) {
+    print(paste0("Skipping province '",province,"' country '",country,"' due to too low removed cases: ",maxRemoved))
+    next; 
+  }
+  if(nchar(province)>0)
+    province <- paste0(province,'@')
+  key <- paste0(province, country)
   key <- str_replace_all(key," ","_")
   key <- str_replace_all(key,"\\*","#")
   outFile <- file.path(outDir,paste0(key,'.csv'))
