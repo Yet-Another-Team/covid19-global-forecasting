@@ -11,7 +11,7 @@ sirObsFile <- args[1]
 paramsOutFile <- args[2]
 pngOutFile <- args[3]
 
-optIters <- 10
+optIters <- 20
 
 get_sir_plot <- function(df) {
   dfg <- gather(df,key = 'group',value='people',removed,infected,susceptible)

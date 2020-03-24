@@ -261,7 +261,7 @@ p <- plotPredTable(bestPrediction,p) +
               " beta = ",round(beta,2),
               ' gamma = ',round(gamma,2),
               ' rmse = ',round(rmse),
-              ' susceptible pop = ',round(popFactor*popCount)))+
+              ' init suscept pop = ',round(popFactor*popCount)))+
   scale_y_continuous(limits=c(0,max_val)) +
   scale_x_continuous(limits=c(earliest_obs,latest_obs))
 

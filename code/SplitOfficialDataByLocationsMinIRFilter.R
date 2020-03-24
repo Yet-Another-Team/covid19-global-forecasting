@@ -75,6 +75,10 @@ for(i in (1:nrow(population))) {
     globalTs[,2:6] <- globalTs[,2:6] + df[,2:6]
   
   maxConfirmed <- max(df$confirmed)
+  if(is.na(maxConfirmed)) {
+    print(paste0(province,' - ',country))
+    print(df$confirmed)
+  }
   maxRemoved <- max(df$removed)
   if(maxConfirmed < minAllowedConfirmedCount) {
     print(paste0("Skipping province '",province,"' country '",country,"' due to too low confirmed cases: ",maxConfirmed))
