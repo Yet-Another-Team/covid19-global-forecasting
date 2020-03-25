@@ -121,6 +121,8 @@ for(i in (1:nrow(population))) {
 
 globalTsAgg <- aggregate(cbind(Confirmed,Active,Infected,Deaths,Recovered,Removed) ~ dayNum,data = globalTs, sum)
 
+#globalTsAgg <- globalTsAgg[globalTsAgg$dayNum >=71,] #removing due to QC
+
 #writing global
 globalTsAgg$Susceptible <- globalPopulation - globalTsAgg$Infected - globalTsAgg$Removed
 write.csv(globalTsAgg,globalOutputFile, row.names = F)

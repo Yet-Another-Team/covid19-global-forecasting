@@ -11,7 +11,7 @@ sirObsFile <- args[1]
 paramsOutFile <- args[2]
 pngOutFile <- args[3]
 
-optIters <- 20
+optIters <- 3
 
 get_sir_plot <- function(df) {
   dfg <- gather(df,key = 'group',value='people',Removed,Infected,Susceptible)
@@ -208,9 +208,9 @@ plotPredTable <- function(predTable,p) {
 }
 
 bestPrediction <- getPredRunTable(optRes$par)
-max_val <- max(c(obsSource$infected,obsSource$removed)) * 1.1
-latest_obs <- max(obsSource$day.num) + 1
-earliest_obs <- min(obsSource$day.num)
+max_val <- max(c(obsSource$Infected,obsSource$Removed)) * 1.1
+latest_obs <- max(obsSource$dayNum) + 1
+earliest_obs <- min(obsSource$dayNum)
 
 obsFName <- basename(sirObsFile)
 obsFName <- substr(obsFName,1,(nchar(obsFName)-4))
