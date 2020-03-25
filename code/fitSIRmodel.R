@@ -14,12 +14,12 @@ pngOutFile <- args[3]
 optIters <- 20
 
 get_sir_plot <- function(df) {
-  dfg <- gather(df,key = 'group',value='people',removed,infected,susceptible)
+  dfg <- gather(df,key = 'group',value='people',Removed,Infected,Susceptible)
   dfg[dfg$people == 0,]$people <- 1e-05 # to avoid problems with log scale
   cols <- c("infected" = "red", "removed" = "green", "susceptible"="blue")
   res <-
     ggplot(dfg) +
-    xlab("Day number since 2020-01-01") +
+    xlab("Days since 2020-01-01 00:00:00") +
     geom_point(aes(x=day.num,y=people,color=group)) + scale_color_manual(values = cols)
   return(res)
 }
@@ -40,15 +40,15 @@ SIR <- function(t, state, parameters) {
 
 obsSource <- read.csv(sirObsFile)
 
-popCount <- obsSource$susceptible[1]
+popCount <- obsSource$Susceptible[1]
 
 obs <- data.frame(
-  days=obsSource$day.num,
-  susceptible.obs=obsSource$susceptible,
-  infected.obs=obsSource$infected,
-  removed.obs=obsSource$removed)
+  days=obsSource$dayNum,
+  susceptible.obs=obsSource$Susceptible,
+  infected.obs=obsSource$Infected,
+  removed.obs=obsSource$Removed)
 
-firstDayIdx <- which(obsSource$infected>0)[1]
+firstDayIdx <- which(obsSource$Infected>0)[1]
 
 getPrediction <- function(p) {
   zeroDayNum = p[1]
@@ -111,10 +111,10 @@ optRes <- NULL
 for(i in (1:optIters)) {
   # will try to fit several times with different seeds
   set.seed(12543 + 101*i)
-  startP = c(firstDayIdx-(optIters %/% 2)+i, # when the infection started
-             1, # how many infected on the first day
-             0.5, # beta
-             1/3) # gamma
+  startP = c(firstDayIdx, # when the infection started
+             as.integer(runif(1,min=1,max=10)), # how many infected on the first day
+             runif(1), # beta
+             runif(1))# gamma
   #print(toMinimize(startP)) # loss value at start
   optCtr <- list(trace=0,maxit=10000) # set trace to value higher than 0, if you want details
   curOptRes <- optim(startP, toMinimize,control = optCtr)
