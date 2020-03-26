@@ -16,7 +16,10 @@ population <- read.csv(populationCountFile)
 
 dailyRepFiles <- dir(jhuInputDir,pattern='*.csv$')
 
+sort(dailyRepFiles)
+
 locationList <- list()
+locationLatest <- list()
 
 for(dailyRepFile in dailyRepFiles) {
   dailyDf <- read.csv(file.path(jhuInputDir,dailyRepFile), fileEncoding = 'UTF-8-BOM')
@@ -50,13 +53,21 @@ for(dailyRepFile in dailyRepFiles) {
     province <- row$Province_State
     country <- row$Country_Region
     key <- paste0(province,'@',country)
+    curValLatestUpdate <- row$Last.Update
     keyDf <- locationList[[key]]
-    if(is.null(keyDf))
-      keyDf <- row
-    else
-      keyDf <- rbind(keyDf,row)
+    latestUpdateAtLoc <- locationLatest[[key]]
+    
+    # whether to register this day or not
+    validEntry <- is.null(latestUpdateAtLoc) || difftime(curValLatestUpdate,latestUpdateAtLoc,units='days')>0
+    
+    if(validEntry) {
+      if(is.null(keyDf)) {
+        keyDf <- row
+      }
+      else
+        keyDf <- rbind(keyDf,row)
     locationList[[key]] <- keyDf
-    # keyDf is null if key not found
+    }
   }
 }
 

@@ -113,13 +113,46 @@ getPredRunTable<-function(p) {
   m1
 }
 
+rmse <- function(suscept.obs,
+                 infected.obs,
+                 removed.obs,
+                 susceptible.pred,
+                 infected.pred,
+                 removed.pred) {
+  sqrt(mean(((susceptible.obs - susceptible.pred)**2 +
+               (infected.obs - infected.pred)**2 +
+               (removed.obs - removed.pred)**2)/3))
+}
+
+rmsle <- function(obs,pred) {
+  log_obs <- log(obs+1)
+  log_pred <- log(pred+1)
+  sqrt(mean((log_obs-log_pred)*(log_obs-log_pred)))
+}
+
+tripple_rmsle <- function(suscept.obs,
+                          infected.obs,
+                          removed.obs,
+                          susceptible.pred,
+                          infected.pred,
+                          removed.pred) {
+  (
+    rmsle(suscept.obs,susceptible.pred) +
+      rmsle(infected.obs,infected.pred) +
+      rmsle(removed.obs,removed.pred)
+  )/3.0
+}
+
 toMinimize <- function(p) {
   m1 <- getPredRunTable(p)
   
-  loss <- # LOSS is RMSE
-    sqrt(mean(((m1$susceptible.obs - m1$susceptible.pred)**2 +
-                (m1$infected.obs - m1$infected.pred)**2 +
-                (m1$removed.obs - m1$removed.pred)**2)/3))
+  loss <- tripple_rmsle(
+    m1$susceptible.obs,
+    m1$infected.obs,
+    m1$removed.obs,
+    m1$susceptible.pred,
+    m1$infected.pred,
+    m1$removed.pred)
   return(loss)
 }
 
