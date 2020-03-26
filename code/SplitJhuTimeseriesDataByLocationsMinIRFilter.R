@@ -12,9 +12,11 @@ minAllowedRemovedCount <- as.integer(args[6])
 asterixPos = regexpr('\\*',outputPattern)[1]
 outDir <- substr(outputPattern,1,asterixPos-2)
 
-jhu_confirmed <- read.csv(file.path(jhuInputDir,'time_series_19-covid-Confirmed.csv'))
-jhu_deaths <- read.csv(file.path(jhuInputDir,'time_series_19-covid-Deaths.csv'))
-jhu_recovered <- read.csv(file.path(jhuInputDir,'time_series_19-covid-Recovered.csv'))
+jhu_confirmed <- read.csv(file.path(jhuInputDir,'time_series_covid19_confirmed_global.csv'),fileEncoding = "UTF-8-BOM")
+jhu_deaths <- read.csv(file.path(jhuInputDir,'time_series_covid19_deaths_global.csv'),fileEncoding = "UTF-8-BOM")
+jhu_recovered <- read.csv(file.path(jhuInputDir,'time_series_covid19_recovered_global.csv'),fileEncoding = "UTF-8-BOM")
+
+#print(jhu_recovered)
 
 population <- read.csv(populationCountFile)
 
@@ -28,9 +30,9 @@ get_count_df <- function(df_row) {
     date_series <- vector("integer", M)
     for(i in 5:(5+M-1)) {
       count_series[i-4] <- df_row[[i]]
-      date_series[i-4] <- difftime(strptime(n[i],format='X%m.%d.%y',tz="GMT"),start_date,units='days')
+      date_series[i-4] <- difftime(strptime(n[i],format='X%m.%d.%y',tz="GMT"),start_date,units='days')+1
     }
-    return(data.frame(count=count_series, day.num=date_series))
+    return(data.frame(count=count_series, dayNum=date_series))
   } else
     return(NULL)
 }
@@ -40,19 +42,25 @@ get_site_df <- function(province,country, N) {
   conf_df <- get_count_df(jhu_confirmed[jhu_confirmed$Country.Region==country & jhu_confirmed$Province.State==province,])
   if(is.null(conf_df))
     return(NULL);
-  names(conf_df)[1] <- 'confirmed'
+  names(conf_df)[1] <- 'Confirmed'
   rec_df <- get_count_df(jhu_recovered[jhu_recovered$Country.Region==country & jhu_recovered$Province.State==province,])
-  names(rec_df)[1] <- 'recovered'
+  if(is.null(rec_df))
+    return(NULL);
+  names(rec_df)[1] <- 'Recovered'
   death_df <- get_count_df(jhu_deaths[jhu_deaths$Country.Region==country & jhu_deaths$Province.State==province,])
-  names(death_df)[1] <- 'deaths'
+  if(is.null(death_df))
+    return(NULL);
+  names(death_df)[1] <- 'Deaths'
+  
   
   
   merged1 <- merge(conf_df,rec_df)
   merged2 <- merge(merged1,death_df)
   
-  merged2$removed <- merged2$deaths + merged2$recovered
-  merged2$infected <- merged2$confirmed - merged2$removed
-  merged2$susceptible <- N - merged2$infected - merged2$removed
+  merged2$Removed <- merged2$Deaths + merged2$Recovered
+  merged2$Infected <- merged2$Confirmed - merged2$Removed
+  merged2$Susceptible <- N - merged2$Infected - merged2$Removed
+  #print(merged2)
   return(merged2)
 }
 
@@ -74,12 +82,12 @@ for(i in (1:nrow(population))) {
   else
     globalTs[,2:6] <- globalTs[,2:6] + df[,2:6]
   
-  maxConfirmed <- max(df$confirmed)
+  maxConfirmed <- max(df$Confirmed)
   if(is.na(maxConfirmed)) {
     print(paste0(province,' - ',country))
     print(df$confirmed)
   }
-  maxRemoved <- max(df$removed)
+  maxRemoved <- max(df$Removed)
   if(maxConfirmed < minAllowedConfirmedCount) {
     print(paste0("Skipping province '",province,"' country '",country,"' due to too low confirmed cases: ",maxConfirmed))
     next; 
@@ -99,7 +107,7 @@ for(i in (1:nrow(population))) {
 }
 
 #writing global
-globalTs$susceptible <- globalPopulation - globalTs$infected - globalTs$removed
+globalTs$Susceptible <- globalPopulation - globalTs$Infected - globalTs$Removed
 write.csv(globalTs,globalOutputFile, row.names = F)
 
 print("Done")

@@ -1,0 +1,13 @@
+{
+  "FileFormatVersion": 1,
+  "Origin": {
+    "Case": "SourceOrigin",
+    "Fields": [
+      {
+        "RelativePath": "csse_covid_19_time_series\\",
+        "Hash": "F8FFC4CF7DB3C8B4935E6D184CF7BAA73CEFCA981050A4B1AA087115331971ED2173C54F683995B9D97F2DDBB7DA4FC022A0E529EB554EB0BD411052D6BCF88F"
+      }
+    ]
+  },
+  "IsTracked": true
+}

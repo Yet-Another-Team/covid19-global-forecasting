@@ -11,7 +11,7 @@ SIR_IR_min_bound/per_evolving_location_fitted/*.json
 SIR_IR_min_bound/per_evolving_location_fitted/*.png
 SIR_IR_min_bound/per_location_data/*.csv
 SIR_IR_min_bound/per_location_data_gathered/
-jhu_data/
+jhu_data/csse_covid_19_time_series/
 official_data/
 // ---alpheus-managed-end---
 venv
