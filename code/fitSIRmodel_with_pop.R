@@ -3,18 +3,18 @@ args = commandArgs(trailingOnly=TRUE)
 require(RJSONIO)
 require(ggplot2)
 require(tidyr)
-require(deSolve)
 require(pracma)
+require(deSolve)
 require(gridExtra)
 
 sirObsFile <- args[1]
 paramsOutFile <- args[2]
 pngOutFile <- args[3]
 
-optIters <- 20
+optIters <- 100
 
 get_sir_plot <- function(df) {
-  dfg <- gather(df,key = 'group',value='people',removed,infected,susceptible)
+  dfg <- gather(df,key = 'group',value='people',Removed,Infected,Susceptible)
   dfg[dfg$people == 0,]$people <- 1e-05 # to avoid problems with log scale
   cols <- c("infected" = "red", "removed" = "green", "susceptible"="blue")
   res <-
@@ -40,15 +40,18 @@ SIR <- function(t, state, parameters) {
 
 obsSource <- read.csv(sirObsFile)
 
-popCount <- obsSource$susceptible[1]
+popCount <- obsSource$Susceptible[1]
 
+maxConfirmed <- max(obsSource$Confirmed)
+
+#print(paste0("popCount ",popCount))
 obs <- data.frame(
-  days=obsSource$day.num,
-  susceptible.obs=obsSource$susceptible,
-  infected.obs=obsSource$infected,
-  removed.obs=obsSource$removed)
+  days=obsSource$dayNum,
+  susceptible.obs=obsSource$Susceptible,
+  infected.obs=obsSource$Infected,
+  removed.obs=obsSource$Removed)
 
-firstDayIdx <- which(obsSource$infected>0)[1]
+firstDayIdx <- obsSource$dayNum[which(obsSource$Infected>0)[1]]
 
 #print(paste0('firstDay real Idx ',firstDayIdx))
 
@@ -83,7 +86,12 @@ getPrediction <- function(p) {
 getPredRunTable<-function(p) {
   out <- getPrediction(p)
   
+  outMaxV <- max(out$infected.pred)
+  outMaxDay <- out$days[which(out$infected.pred == outMaxV)]
+  
   pop <- sigmoid(p[5])*popCount
+  if(pop > maxConfirmed)
+    pop <- maxConfirmed
   
   obsCur <- obs
   obsCur$susceptible.obs <- obsCur$susceptible.obs - popCount + pop
@@ -94,8 +102,10 @@ getPredRunTable<-function(p) {
   erliestOut <- out[1,]
   latestOut <- out[nrow(out),]
   
+  earliestSuscPrep <- out$susceptible.pred[1]
+  
   if(sum(is.na(m1$susceptible.pred) & m1$days<=erliestOut$days)>0)
-    m1[is.na(m1$susceptible.pred) & m1$days<=erliestOut$days,]$susceptible.pred <- pop
+    m1[is.na(m1$susceptible.pred) & m1$days<=erliestOut$days,]$susceptible.pred <- earliestSuscPrep
   if(sum(is.na(m1$susceptible.pred) & m1$days>=latestOut$days)>0)
     m1[is.na(m1$susceptible.pred) & m1$days>=latestOut$days,]$susceptible.pred <- latestOut$susceptible.pred
   
@@ -110,49 +120,49 @@ getPredRunTable<-function(p) {
     m1[is.na(m1$removed.pred) & m1$days>=latestOut$days,]$removed.pred <- latestOut$removed.pred
   
   
-  m1
+  res <- list(table =m1, peakDay = outMaxDay, peakHeight = outMaxV)
 }
 
-rmse <- function(suscept.obs,
-                 infected.obs,
-                 removed.obs,
-                 susceptible.pred,
-                 infected.pred,
-                 removed.pred) {
-  sqrt(mean(((susceptible.obs - susceptible.pred)**2 +
-               (infected.obs - infected.pred)**2 +
-               (removed.obs - removed.pred)**2)/3))
+rmse <- function(obs,pred) {
+  sqrt(mean((obs-pred)*(obs-pred)))
 }
 
 rmsle <- function(obs,pred) {
-  log_obs <- log(obs+1)
-  log_pred <- log(pred+1)
+  log_obs <- log(max(1,obs+1))
+  log_pred <- log(max(1,pred+1))
   sqrt(mean((log_obs-log_pred)*(log_obs-log_pred)))
 }
 
-tripple_rmsle <- function(suscept.obs,
+tripple_loss <- function(loss,suscept.obs,
                           infected.obs,
                           removed.obs,
                           susceptible.pred,
                           infected.pred,
                           removed.pred) {
   (
-    rmsle(suscept.obs,susceptible.pred) +
-      rmsle(infected.obs,infected.pred) +
-      rmsle(removed.obs,removed.pred)
-  )/3.0
+    #loss(suscept.obs,susceptible.pred) +
+      loss(infected.obs,infected.pred) +
+      loss(removed.obs,removed.pred)
+  )/2.0
 }
 
 toMinimize <- function(p) {
-  m1 <- getPredRunTable(p)
+  pred <- getPredRunTable(p)
   
-  loss <- tripple_rmsle(
+  m1 <- pred$table
+  
+  lowPopLoss <- max(0,maxConfirmed- sigmoid(p[5])*popCount)
+  
+  #print(paste0('est pop ',sigmoid(p[5])*popCount,' max confiremed ', maxConfirmed))
+  
+  loss <- tripple_loss(
+    rmse,
     m1$susceptible.obs,
     m1$infected.obs,
     m1$removed.obs,
     m1$susceptible.pred,
     m1$infected.pred,
-    m1$removed.pred)
+    m1$removed.pred) + lowPopLoss
   return(loss)
 }
 
@@ -164,7 +174,7 @@ for(i in (1:optIters)) {
              as.integer(runif(1,min=1,max=10)), # how many infected on the first day
              runif(1), # beta
              runif(1),# gamma
-             0.5
+             1 
              ) 
   #print(startP)
   #print(toMinimize(startP)) # loss value at start
@@ -186,22 +196,28 @@ for(i in (1:optIters)) {
   }
 }
 
+bestPrediction <- getPredRunTable(optRes$par)
+
 rmse = optRes$value
 zeroDayNum = optRes$par[1]
-firstDayInfectedCount = round(abs(optRes$par[2]))
+firstDayInfectedCount = abs(optRes$par[2])
 beta = abs(optRes$par[3])
 gamma = sigmoid(optRes$par[4])
 r0 = beta/gamma
 popFactor = sigmoid(optRes$par[5])
 
 paramsList <- list()
-paramsList$rmse <- rmse
-paramsList$zeroDayNum <- zeroDayNum
-paramsList$firstDayInfectedCount <- firstDayInfectedCount
-paramsList$beta <- beta
-paramsList$gamma <- gamma
-paramsList$r0 <- r0
-paramsList$popFactor <- popFactor
+paramsList$R0 <- r0
+paramsList$Beta <- beta
+paramsList$Gamma <- gamma
+paramsList$FirstDayNum <- round(zeroDayNum)
+paramsList$FirstDayInfectedCount <- ceiling(firstDayInfectedCount)
+paramsList$EstimatedSusceptiblePopulation <- popCount*popFactor
+paramsList$PopFactor <- popFactor
+paramsList$TotalPopulation <- popCount
+paramsList$PeakDayNum <- bestPrediction$peakDay
+paramsList$PeakInfectionValue <- bestPrediction$peakHeight
+paramsList$Loss <- rmse
 
 exportJson <- toJSON(paramsList)
 write(exportJson, paramsOutFile)
@@ -225,7 +241,8 @@ plotObsTable <- function(predTable,p) {
   if(sum(predTableG$people == 0)>0)
     predTableG[predTableG$people == 0,]$people <- 1e-5 # to avoid problems with log scale
   
-  modelOnlyG <- predTableG[predTableG$Type == 'Model',]
+  predTableG <- predTableG[predTableG$Group != 'Susceptible',]
+  
   obsOnlyG <- predTableG[predTableG$Type == 'Actual',]
   
   cols <- c("Infected" = "red", "Removed" = "green", "Susceptible"="blue")
@@ -267,10 +284,10 @@ plotPredTable <- function(predTable,p) {
   res
 }
 
-bestPrediction <- getPredRunTable(optRes$par)
-max_val <- max(c(obsSource$infected,obsSource$removed)) * 1.1
-latest_obs <- max(obsSource$day.num) + 1
-earliest_obs <- min(obsSource$day.num)
+
+max_val <- max(c(obsSource$Infected,obsSource$Removed)) * 1.1
+latest_obs <- max(obsSource$dayNum) + 1
+earliest_obs <- min(obsSource$dayNum)
 
 obsFName <- basename(sirObsFile)
 obsFName <- substr(obsFName,1,(nchar(obsFName)-4))
@@ -287,20 +304,20 @@ if(obsFName == 'globalSirTs') {
 }
 
 p <- ggplot()
-p <- plotObsTable(bestPrediction,p)
-p <- plotPredTable(bestPrediction,p) +
+p <- plotObsTable(bestPrediction$table,p)
+p <- plotPredTable(bestPrediction$table,p) +
   labs(title = paste0("SIR model fit [",descr,"]"),
        subtitle = paste0("R0 = ",round(r0,1),
               " beta = ",round(beta,2),
               ' gamma = ',round(gamma,2),
-              ' rmse = ',round(rmse),
+              ' loss = ',round(rmse),
               ' init suscept pop = ',round(popFactor*popCount)))+
   scale_y_continuous(limits=c(0,max_val)) +
   scale_x_continuous(limits=c(earliest_obs,latest_obs))
 
 p2 <- ggplot()
 yearPred <- getPrediction(optRes$par)
-p2 <- plotObsTable(bestPrediction,p2)
+p2 <- plotObsTable(bestPrediction$table,p2)
 p2 <- plotPredTable(yearPred,p2)
 p2 <- p2 + labs(title = "One year simulation",
                 caption = "COVID-19 epidemic dynamics model") +

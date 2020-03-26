@@ -11,7 +11,7 @@ sirObsFile <- args[1]
 paramsOutFile <- args[2]
 pngOutFile <- args[3]
 
-optIters <- 20
+optIters <- 10
 
 get_sir_plot <- function(df) {
   dfg <- gather(df,key = 'group',value='people',Removed,Infected,Susceptible)
@@ -72,6 +72,9 @@ getPrediction <- function(p) {
 getPredRunTable<-function(p) {
   out <- getPrediction(p)
   
+  outMaxV <- max(out$infected.pred)
+  outMaxDay <- out$days[which(out$infected.pred == outMaxV)]
+  
   m1 <- merge(obs,out, by='days',all.x = T)
   
   # filling up out of range values
@@ -94,7 +97,7 @@ getPredRunTable<-function(p) {
     m1[is.na(m1$removed.pred) & m1$days>=latestOut$days,]$removed.pred <- latestOut$removed.pred
   
   
-  m1
+  res <- list(table =m1, peakDay = outMaxDay, peakHeight = outMaxV)
 }
 
 rmse <- function(suscept.obs,
@@ -128,7 +131,9 @@ tripple_rmsle <- function(suscept.obs,
 }
 
 toMinimize <- function(p) {
-  m1 <- getPredRunTable(p)
+  pred <- getPredRunTable(p)
+  
+  m1 <- pred$table
   
   loss <- tripple_rmsle(
       m1$susceptible.obs,
@@ -168,13 +173,18 @@ beta = abs(optRes$par[3])
 gamma = sigmoid(optRes$par[4])
 r0 = beta/gamma
 
+bestPrediction <- getPredRunTable(optRes$par)
+
 paramsList <- list()
 paramsList$rmse <- rmse
 paramsList$zeroDayNum <- zeroDayNum
 paramsList$firstDayInfectedCount <- firstDayInfectedCount
 paramsList$beta <- beta
 paramsList$gamma <- gamma
+paramsList$TotalPopulation <- popCount
 paramsList$r0 <- r0
+paramsList$PeakInfectionValue <- bestPrediction$peakHeight
+paramsList$PeakDay <- bestPrediction$peakDay
 
 exportJson <- toJSON(paramsList)
 write(exportJson, paramsOutFile)
@@ -240,7 +250,6 @@ plotPredTable <- function(predTable,p) {
   res
 }
 
-bestPrediction <- getPredRunTable(optRes$par)
 max_val <- max(c(obsSource$Infected,obsSource$Removed)) * 1.1
 latest_obs <- max(obsSource$dayNum) + 1
 earliest_obs <- min(obsSource$dayNum)

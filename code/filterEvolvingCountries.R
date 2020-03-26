@@ -11,7 +11,7 @@ for(inFile in inFiles) {
   inFullPath <- file.path(inDir,inFile)
   outFullPath <- file.path(outDir,inFile)
   df <- read.csv(inFullPath)
-  doCopy <- (length(df$Infected)>5) && (df$Infected[length(df$Infected)] > df$Infected[length(df$Infected)-5])
+  doCopy <- (length(df$Infected)>10) && (df$Infected[length(df$Infected)] > df$Infected[length(df$Infected)/2])
   if(doCopy) {
     print(paste0("Retain ",inFile,' as the epidemy still evolves at the location'))
     file.copy(inFullPath,outFullPath)
