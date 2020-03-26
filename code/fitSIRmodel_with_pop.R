@@ -19,7 +19,7 @@ get_sir_plot <- function(df) {
   cols <- c("infected" = "red", "removed" = "green", "susceptible"="blue")
   res <-
     ggplot(dfg) +
-    xlab("Day number since 2020-01-01") +
+    xlab("Days since year 2020 start") +
     geom_point(aes(x=day.num,y=people,color=group)) + scale_color_manual(values = cols)
   return(res)
 }
@@ -233,7 +233,7 @@ plotObsTable <- function(predTable,p) {
   
   res <-
     p +
-    xlab("Day number since 2020-01-01") +
+    xlab("Days since year 2020 start") +
     geom_point(aes(x=days,y=people,fill=Group),data=obsOnlyG, shape=21,color='transparent') + 
     scale_fill_manual(values = cols ,name="Observations") +
     theme_bw() #+

@@ -19,7 +19,7 @@ dailyRepFiles <- dir(jhuInputDir,pattern='*.csv$')
 sort(dailyRepFiles)
 
 locationList <- list()
-locationLatest <- list()
+#locationLatest <- list()
 
 for(dailyRepFile in dailyRepFiles) {
   dailyDf <- read.csv(file.path(jhuInputDir,dailyRepFile), fileEncoding = 'UTF-8-BOM')
@@ -54,11 +54,14 @@ for(dailyRepFile in dailyRepFiles) {
     country <- row$Country_Region
     key <- paste0(province,'@',country)
     curValLatestUpdate <- row$Last.Update
+    #print(curValLatestUpdate)
+    #print(row)
     keyDf <- locationList[[key]]
-    latestUpdateAtLoc <- locationLatest[[key]]
+    #latestUpdateAtLoc <- locationLatest[[key]]
     
     # whether to register this day or not
-    validEntry <- is.null(latestUpdateAtLoc) || difftime(curValLatestUpdate,latestUpdateAtLoc,units='days')>0
+    #validEntry <- (is.null(latestUpdateAtLoc)) || (difftime(curValLatestUpdate,latestUpdateAtLoc,units='days')>0)
+    validEntry <- TRUE
     
     if(validEntry) {
       if(is.null(keyDf)) {
@@ -66,7 +69,10 @@ for(dailyRepFile in dailyRepFiles) {
       }
       else
         keyDf <- rbind(keyDf,row)
-    locationList[[key]] <- keyDf
+      locationList[[key]] <- keyDf
+      #latestUpdateAtLoc[[key]] <- curValLatestUpdate
+    } else {
+      print(paste0("skiping day ",cur_date," for ",key," as there were no updates"))
     }
   }
 }
