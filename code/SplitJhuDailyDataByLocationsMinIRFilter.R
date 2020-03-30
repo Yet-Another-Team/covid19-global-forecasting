@@ -4,19 +4,29 @@ require(stringr)
 
 jhuInputDir <- args[1]
 populationCountFile <- args[2]
-outputPattern <- args[3] # should end with *.csv
-globalOutputFile <- args[4]
-minAllowedConfirmedCount <- as.integer(args[5])
-minAllowedRemovedCount <- as.integer(args[6])
+inputKeyFilterFile <- args[3]
+outputPattern <- args[4] # should end with *.csv
+globalOutputFile <- args[5]
+minAllowedConfirmedCount <- as.integer(args[6])
+minAllowedRemovedCount <- as.integer(args[7])
 
 asterixPos = regexpr('\\*',outputPattern)[1]
 outDir <- substr(outputPattern,1,asterixPos-2)
 
 population <- read.csv(populationCountFile)
+population$Province.State <- str_replace_all(population$Province.State," ","_")
+population$Country.Region <- str_replace_all(population$Country.Region," ","_")
+population$Province.State <- str_replace_all(population$Province.State,"\\*","#")
+population$Country.Region <- str_replace_all(population$Country.Region,"\\*","#")
+
 
 dailyRepFiles <- dir(jhuInputDir,pattern='*.csv$')
 
 sort(dailyRepFiles)
+
+inputKeyFilterDf <- read.csv(inputKeyFilterFile)
+neededKeys <- inputKeyFilterDf$Key
+  
 
 locationList <- list()
 #locationLatest <- list()
@@ -37,7 +47,7 @@ for(dailyRepFile in dailyRepFiles) {
   dailyDfAgg$Removed <- dailyDfAgg$Deaths + dailyDfAgg$Recovered
   dailyDfAgg$Active <- dailyDfAgg$Confirmed - dailyDfAgg$Removed
   dailyDfAgg$Infected <- dailyDfAgg$Active
-  names(dailyDfAgg)[1:2] <- c('Province_State','Country_Region')
+  names(dailyDfAgg)[1:2] <- c('Province.State','Country.Region')
   
   dateName <- substr(dailyRepFile,1,nchar(dailyRepFile)-4)
   start_date <- strptime('01-01-2020',format='%m-%d-%Y',tz="GMT")
@@ -50,9 +60,14 @@ for(dailyRepFile in dailyRepFiles) {
   N <- nrow(dailyDfAgg)
   for(i in (1:N)) {
     row <- dailyDfAgg[i,]
-    province <- row$Province_State
-    country <- row$Country_Region
-    key <- paste0(province,'@',country)
+    province <- as.character(row$Province.State)
+    country <- as.character(row$Country.Region)
+    if(nchar(province)>0)
+      province <- paste0(province,'@')
+    key <- paste0(province, country)
+    key <- str_replace_all(key," ","_")
+    key <- str_replace_all(key,"\\*","#")
+    
     curValLatestUpdate <- row$Last.Update
     #print(curValLatestUpdate)
     #print(row)
@@ -77,6 +92,8 @@ for(dailyRepFile in dailyRepFiles) {
   }
 }
 
+print("Loaded all daily reports files")
+
 print(paste0("There are ",length(locationList),' locations in data location list'))
 print(paste0("There are ",nrow(population),' locations in location population df'))
 
@@ -92,47 +109,49 @@ get_site_df <- function(province,country, N) {
 globalTs <- NULL
 globalPopulation <- 7700000000
 
-for(i in (1:nrow(population))) {
-  province <- as.character(population[i,1])
-  country <- as.character(population[i,2])
-  popCount <- population[i,3]
-  #print(paste0("Extracting province '",province,"' state '",country,"' with population ",popCount))
-  
-  siteDf <- get_site_df(province,country,popCount)
-  
-  #print(head(siteDf))
-  if(is.null(siteDf)) {
-    print(paste0("Can't find data for province '",province,"' country '",country,"'"))
-    next;
+#print(population[,1:2])
+for(key in neededKeys) {
+  atPos = regexpr('\\@',key)[1]
+  if(atPos>0) {
+    province <- as.character(substr(key, 1, atPos-1))
+    country <- as.character(substr(key,atPos+1,nchar(key)))
+  } else {
+    province <- ''
+    country <- key
   }
-  
-  if(is.null(globalTs))
-    globalTs <- siteDf[,3:10]
-  else
-    globalTs <- rbind(globalTs,siteDf[,3:10])
-  
-  maxConfirmed <- max(siteDf$Confirmed)
-  #if(is.na(maxConfirmed)) {
-  #  print(paste0(province,' - ',country))
-  #  print(df$Confirmed)
-  #}
-  maxRemoved <- max(siteDf$Removed)
-  if(maxConfirmed < minAllowedConfirmedCount) {
-    print(paste0("Skipping province '",province,"' country '",country,"' due to too low confirmed cases: ",maxConfirmed))
-    next; 
+  popRow <- population[(population$Province.State == province) & (population$Country.Region == country),]
+  if(nrow(popRow)>0) {
+    popCount <- population[1,3]
+    siteDf <- get_site_df(province,country,popCount)
+    
+    #print(head(siteDf))
+    if(is.null(siteDf)) {
+      print(paste0("!!! ---> Can't find data for province '",province,"' country '",country,"'"))
+      next;
+    }
+    
+    if(is.null(globalTs))
+      globalTs <- siteDf[,3:10]
+    else
+      globalTs <- rbind(globalTs,siteDf[,3:10])
+    
+    maxConfirmed <- max(siteDf$Confirmed)
+    maxRemoved <- max(siteDf$Removed)
+    if(maxConfirmed < minAllowedConfirmedCount) {
+      print(paste0("Skipping province '",province,"' country '",country,"' due to too low confirmed cases: ",maxConfirmed))
+      next; 
+    }
+    if(maxRemoved < minAllowedRemovedCount) {
+      print(paste0("Skipping province '",province,"' country '",country,"' due to too low removed cases: ",maxRemoved))
+      next; 
+    }
+    outFile <- file.path(outDir,paste0(key,'.csv'))
+    #print(paste0('Writing ',outFile))
+    write.csv(siteDf,outFile, row.names = F)
+    print(paste0("Done with province '",province,"' state '",country,"' with population ",popCount))
+  } else {
+    print(paste0("!!! ---> Can't find population data for '",province,"' state of '",country,"'"))
   }
-  if(maxRemoved < minAllowedRemovedCount) {
-    print(paste0("Skipping province '",province,"' country '",country,"' due to too low removed cases: ",maxRemoved))
-    next; 
-  }
-  if(nchar(province)>0)
-    province <- paste0(province,'@')
-  key <- paste0(province, country)
-  key <- str_replace_all(key," ","_")
-  key <- str_replace_all(key,"\\*","#")
-  outFile <- file.path(outDir,paste0(key,'.csv'))
-  #print(paste0('Writing ',outFile))
-  write.csv(siteDf,outFile, row.names = F)
 }
 #print(head())
 

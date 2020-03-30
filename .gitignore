@@ -1,6 +1,7 @@
 // ---alpheus-managed-start---
 **/*.hash
 .alpheus/storage
+dr_location_data/
 SIR_IR_min_bound/per_controlled_location_data/*.csv
 SIR_IR_min_bound/per_controlled_location_data_gathered/
 SIR_IR_min_bound/per_controlled_location_fitted/*.json
