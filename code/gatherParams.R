@@ -15,6 +15,8 @@ inFiles <- dir(path=inDir,pattern=paste0(filemask,'$'))
 
 acc <- NULL
 
+start_date <- as.Date(strptime('2020-01-01',format='%Y-%m-%d',tz="GMT"))
+
 for(pars_df_path in inFiles) {
   inFilePath <- file.path(inDir,pars_df_path)
   json_data <- fromJSON(inFilePath)
@@ -27,11 +29,14 @@ for(pars_df_path in inFiles) {
     province <- ''
     country <- key
   }
+  
   pars_df <- data.frame(do.call("rbind",list(json_data)))
   origColsN <- ncol(pars_df)
+  pars_df$FirstDate <- as.character(start_date+pars_df$FirstDayNum-1)
+  pars_df$PeakDate <- as.character(start_date+pars_df$PeakDayNum-1)
   pars_df$Province <- province
   pars_df$Country <- country
-  pars_df <- pars_df[,c(origColsN+1,origColsN+2,1:origColsN)]
+  pars_df <- pars_df[,c(origColsN+3,origColsN+4,1:4,origColsN+1,5:6,origColsN+2,7:origColsN)]
   if(is.null(acc))
     acc <- pars_df
   else

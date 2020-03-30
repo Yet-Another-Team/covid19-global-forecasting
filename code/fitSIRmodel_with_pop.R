@@ -10,6 +10,7 @@ require(gridExtra)
 sirObsFile <- args[1]
 paramsOutFile <- args[2]
 pngOutFile <- args[3]
+predTableOutFile <- args[4]
 
 optIters <- 100
 
@@ -212,11 +213,11 @@ paramsList$Beta <- beta
 paramsList$Gamma <- gamma
 paramsList$FirstDayNum <- round(zeroDayNum)
 paramsList$FirstDayInfectedCount <- ceiling(firstDayInfectedCount)
-paramsList$EstimatedSusceptiblePopulation <- popCount*popFactor
-paramsList$PopFactor <- popFactor
-paramsList$TotalPopulation <- popCount
 paramsList$PeakDayNum <- bestPrediction$peakDay
-paramsList$PeakInfectionValue <- bestPrediction$peakHeight
+paramsList$PeakDayInfectedCount <- bestPrediction$peakHeight
+paramsList$TotalPopulation <- popCount
+paramsList$PopFactor <- popFactor
+paramsList$EstimatedSusceptiblePopulation <- popCount*popFactor
 paramsList$Loss <- rmse
 
 exportJson <- toJSON(paramsList)
@@ -327,4 +328,11 @@ p2 <- p2 + labs(title = "One year simulation",
 p3 <- grid.arrange(p, p2, nrow=2)
 
 ggsave(pngOutFile,p3)
+print("Figure saved")
+
+predCols <- ncol(yearPred)
+yearPred$Date <- as.character(as.Date(strptime('2020-01-01',format='%Y-%m-%d',tz="GMT"))+yearPred$days-1)
+yearPred <- yearPred[,c(predCols+1,1:predCols)]
+write.csv(yearPred, file=predTableOutFile)
+print("Predicion table written")
 print("Done")
