@@ -31,7 +31,7 @@ kaggleTupleFromKey <- function(key) {
   resDf$province[atPos>0] <- substr(key[atPos>0],rep(1,sum(atPos>0)),atPos[atPos>0]-1)
   resDf$province <- str_replace_all(resDf$province,"_"," ")
   resDf$province <- str_replace_all(resDf$province,"#","\\*")
-  names(resDf) <- c('Province.State','atPos','Country.Region')
+  names(resDf) <- c('Province_State','atPos','Country_Region')
   resDf[,c(1,3)]
 }
 
@@ -41,7 +41,7 @@ kaggleTestDf$Fatalities <- 0
 
 kaggleKeysDf <- kaggleTestDf[,2:3]
 kaggleKeysDf <- kaggleKeysDf[!duplicated(kaggleKeysDf),]
-kaggleKeys <- data.frame(kaggleKeysDf$Province.State, kaggleKeysDf$Country.Region)
+kaggleKeys <- data.frame(kaggleKeysDf$Province_State, kaggleKeysDf$Country_Region)
 
 remainingKeys <- kaggleKeys
 
@@ -53,7 +53,7 @@ kaggleTrainSetConstExtrapolationPredictor <- list(
   fun=function(province,country,dates) {
     N <- length(dates)
     prediction <- data.frame(ConfirmedCases=rep(0,N),Fatalities=rep(0,N))
-    curLocTrSet <- kaggleTrDf[(kaggleTrDf$Province.State == province) & (kaggleTrDf$Country.Region == country),]
+    curLocTrSet <- kaggleTrDf[(kaggleTrDf$Province_State == province) & (kaggleTrDf$Country_Region == country),]
     start_date <- strptime('01-01-2020',format='%m-%d-%Y',tz="GMT")
     cur_date <- strptime(curLocTrSet$Date,format='%Y-%m-%d',tz="GMT")
     curLocTrSet$DayNum <- difftime(cur_date,start_date,units='days')+1
@@ -64,11 +64,11 @@ kaggleTrainSetConstExtrapolationPredictor <- list(
       cur_date <- strptime(curDate,format='%Y-%m-%d',tz="GMT")
       dayNum <- difftime(cur_date,start_date,units='days')+1
       if(dayNum<minDay)
-        prediction[i,] <- curLocTrSet[curLocTrSet$DayNum == minDay,7:8]
+        prediction[i,] <- curLocTrSet[curLocTrSet$DayNum == minDay,5:6]
       else  if(dayNum>maxDay) {
-        prediction[i,] <- curLocTrSet[curLocTrSet$DayNum == maxDay,7:8]
+        prediction[i,] <- curLocTrSet[curLocTrSet$DayNum == maxDay,5:6]
       } else {
-        prediction[i,] <- curLocTrSet[curLocTrSet$DayNum == dayNum,7:8]
+        prediction[i,] <- curLocTrSet[curLocTrSet$DayNum == dayNum,5:6]
       }
     }
     prediction
@@ -89,7 +89,7 @@ while ((nrow(remainingKeys)>0) && (predictorIdx <= length(predictors)) ) {
     province <- remainingKeys[i,1]
     country <- remainingKeys[i,2]
     
-    curPredIndicator <- (kaggleTestDf$Province.State == province) & (kaggleTestDf$Country.Region == country)
+    curPredIndicator <- (kaggleTestDf$Province_State == province) & (kaggleTestDf$Country_Region == country)
     curPredIndices <- which(curPredIndicator)
     testDfAtCurLoc <- kaggleTestDf[curPredIndices,]
     #dates needed to be predicted
@@ -108,6 +108,6 @@ while ((nrow(remainingKeys)>0) && (predictorIdx <= length(predictors)) ) {
   remainingKeys <- setdiff(remainingKeys,curPredictedKeys)
   predictorIdx <- predictorIdx + 1
 }
-res <- kaggleTestDf[,c(1,7,8)]
+res <- kaggleTestDf[,c(1,5,6)]
 write.csv(res,file=outFile,row.names = F)
 print('Done')
