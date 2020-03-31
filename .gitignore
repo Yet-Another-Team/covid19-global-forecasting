@@ -1,7 +1,9 @@
 // ---alpheus-managed-start---
 **/*.hash
 .alpheus/storage
-dr_location_data/
+SIR_IR_min_bound/dr_fitted_params/*.json
+SIR_IR_min_bound/dr_fitted_png/*.png
+SIR_IR_min_bound/dr_fitted_prediction/*.csv
 SIR_IR_min_bound/per_controlled_location_data/*.csv
 SIR_IR_min_bound/per_controlled_location_data_gathered/
 SIR_IR_min_bound/per_controlled_location_fitted/*.json
@@ -15,6 +17,8 @@ SIR_IR_min_bound/per_location_data/*.csv
 SIR_IR_min_bound/per_location_data_gathered/
 SIR_IR_min_bound/per_location_fitted_params/*.json
 SIR_IR_min_bound/per_location_fitted_png/*.png
+SIR_IR_min_bound/per_location_prediction/*.csv
+dr_location_data/
 jhu_data/csse_covid_19_daily_reports/
 jhu_data/csse_covid_19_time_series/
 official_data/
