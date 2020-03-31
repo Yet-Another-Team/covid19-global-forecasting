@@ -21,6 +21,7 @@ SIR_IR_min_bound/per_location_prediction/*.csv
 dr_location_data/
 jhu_data/csse_covid_19_daily_reports/
 jhu_data/csse_covid_19_time_series/
+jhu_dr_per_location_data/*.csv
 official_data/
 // ---alpheus-managed-end---
 venv
