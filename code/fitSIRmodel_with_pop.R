@@ -88,7 +88,7 @@ getPredRunTable<-function(p) {
   out <- getPrediction(p)
   
   outMaxV <- max(out$infected.pred)
-  outMaxDay <- out$days[which(out$infected.pred == outMaxV)]
+  outMaxDay <- out$days[which(out$infected.pred == outMaxV)[1]]
   
   pop <- sigmoid(p[5])*popCount
   if(pop > maxConfirmed)
