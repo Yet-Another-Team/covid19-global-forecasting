@@ -104,7 +104,7 @@
             }
           }
         ],
-        "ResourceGroups": [],
+        "ResourceGroups": ["cpu"],
         "SuccessfulExitCodes": [
           0
         ],
