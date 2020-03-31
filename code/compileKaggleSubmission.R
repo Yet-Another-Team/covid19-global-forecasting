@@ -109,5 +109,5 @@ while ((nrow(remainingKeys)>0) && (predictorIdx <= length(predictors)) ) {
   predictorIdx <- predictorIdx + 1
 }
 res <- kaggleTestDf[,c(1,5,6)]
-write.csv(res,file=outFile,row.names = F)
+write.csv(res,file=outFile,row.names = F,quote = F)
 print('Done')
