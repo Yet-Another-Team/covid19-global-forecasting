@@ -5,6 +5,8 @@ args = commandArgs(trailingOnly=TRUE)
 kaggleTrFile <- args[1]
 kaggleTestFile <- args[2]
 outFile <- args[3]
+jhuTsBasedTrainedSIRdir <- args[4]
+lethalRatesFile <- args[5]
 
 getKey <- function(province,country) {
   province <- as.character(province)
@@ -45,12 +47,62 @@ kaggleKeys <- data.frame(kaggleKeysDf$Province_State, kaggleKeysDf$Country_Regio
 
 remainingKeys <- kaggleKeys
 
+# pre-fitted SIR models predictons
+lethalRatesDf <- read.csv(lethalRatesFile)
+lethalRatesDf$Key <- getKey(lethalRatesDf$Province,lethalRatesDf$Country)
+
+predictSIR <- function(predictionsFile,lethalRate,dates) {
+  N <- length(dates)
+  #print(paste0('opening ',predictionsFile))
+  predDf <- read.csv(predictionsFile)
+  prediction <- data.frame(Infected=rep(0,N),Removed=rep(0,N))
+  start_date <- strptime('01-01-2020',format='%m-%d-%Y',tz="GMT")
+  minDay <- min(predDf$days)
+  maxDay <- max(predDf$days)
+  for(i in (1:N)) {
+    curDate <- dates[i]
+    cur_date <- strptime(curDate,format='%Y-%m-%d',tz="GMT")
+    dayNum <- difftime(cur_date,start_date,units='days')+1
+    if(dayNum<minDay)
+      prediction[i,] <- predDf[predDf$days == minDay,5:6]
+    else  if(dayNum>maxDay) {
+      prediction[i,] <- predDf[predDf$days == maxDay,5:6]
+    } else {
+      prediction[i,] <- predDf[predDf$days == dayNum,5:6]
+    }
+  }
+  prediction$ConfirmedCases <- prediction[,1] + prediction[,2] # infected , removed
+  prediction$Fatalities <- round(prediction[,2]*lethalRate)
+  prediction$ConfirmedCases <- round(prediction$ConfirmedCases)
+  prediction[,3:4]
+}
+
+jhuTsSIRPredictor <- list(
+  name="JHU timeseries data based fitted SIR models",
+  fun=function(province,country,dates) {
+    key <- getKey(province = province, country = country)
+    predictionFile <- file.path(jhuTsBasedTrainedSIRdir,'per_location_prediction',paste0(key,'.csv'))
+    if(!file.exists(predictionFile))
+      return(NULL)
+    else {
+      lr_row <- lethalRatesDf[lethalRatesDf$Key == key,]
+      if(nrow(lr_row) == 0) {
+        print(paste0("WARNING: can't find lethal rates for key ",key))
+        return(NULL)
+      }
+      lr <- lr_row$DeathToRemovedRatio
+      return(predictSIR(predictionFile,lr, dates))
+    }
+  }
+)
+
 # Kaggle Train Set const value extrapolation prediction source
 kaggleTrDf <- read.csv(kaggleTrFile)
 
 kaggleTrainSetConstExtrapolationPredictor <- list(
   name='Kaggle Train Set const value extrapolation',
   fun=function(province,country,dates) {
+    print(paste0("WARNING: Using train set const-extrapolation as there are no other models for province '",province,"' of country '",country,"' available"))
     N <- length(dates)
     prediction <- data.frame(ConfirmedCases=rep(0,N),Fatalities=rep(0,N))
     curLocTrSet <- kaggleTrDf[(kaggleTrDf$Province_State == province) & (kaggleTrDf$Country_Region == country),]
@@ -75,7 +127,9 @@ kaggleTrainSetConstExtrapolationPredictor <- list(
   }
 )
 
-predictors <- list(kaggleTrainSetConstExtrapolationPredictor)
+predictors <- list(
+  jhuTsSIRPredictor,
+  kaggleTrainSetConstExtrapolationPredictor)
 
 predictorIdx <- 1
 while ((nrow(remainingKeys)>0) && (predictorIdx <= length(predictors)) ) {
@@ -105,7 +159,7 @@ while ((nrow(remainingKeys)>0) && (predictorIdx <= length(predictors)) ) {
     kaggleTestDf[curPredIndices,]$Fatalities <- as.integer(predictions$Fatalities)
   }
   print(paste0(length(curPredictedKeys)," locations successfuly predicted using '",predictor$name,"'"))
-  remainingKeys <- setdiff(remainingKeys,curPredictedKeys)
+  remainingKeys <- remainingKeys[-curPredictedKeys,]
   predictorIdx <- predictorIdx + 1
 }
 res <- kaggleTestDf[,c(1,5,6)]

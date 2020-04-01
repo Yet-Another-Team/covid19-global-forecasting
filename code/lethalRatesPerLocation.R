@@ -36,7 +36,7 @@ for(pars_df_path in inFiles) {
     country <- key
   }
   
-  print(paste0('file ',pars_df_path,' province ',province,' country ',country))
+  #print(paste0('file ',pars_df_path,' province ',province,' country ',country))
   
   provinces <- c(provinces, province)
   countries <- c(countries, country)
@@ -49,13 +49,16 @@ for(pars_df_path in inFiles) {
 
 resDf <- data.frame(Province=provinces, Country=countries, Deaths = deaths, Recovered = recovered)
 
-print(paste0(sum(resDf$Deaths>0),' locations are to be discarded due to zero deaths:'))
-discardedDf <- resDf[resDf$Deaths>0,1:2]
+validIndicator <- (resDf$Deaths > 0) | (resDf$Recovered >0)
+
+print(paste0(sum(!validIndicator),' locations are to be discarded due to zero removed count:'))
+discardedDf <- resDf[!validIndicator,1:2]
 print(discardedDf)
 
-resDf <- resDf[,]
-resDf$DeathPortion <- resDf$Deaths / (resDf$Deaths +resDf$Recovered)
+resDf <- resDf[validIndicator,]
+resDf$DeathToRemovedRatio <- resDf$Deaths / (resDf$Deaths +resDf$Recovered)
 
-print(resDf)
+
+print(paste0('Saved lethal rates for ',nrow(resDf),' locations'))
 
 write.csv(resDf, file=outFile, row.names = F)

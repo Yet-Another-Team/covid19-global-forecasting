@@ -1,0 +1,40 @@
+{
+  "FileFormatVersion": 1,
+  "Origin": {
+    "Case": "CommandOrigin",
+    "Fields": [
+      {
+        "Inputs": [
+          {
+            "RelativePath": "..\\code\\concatTables.R",
+            "Hash": "F405B2EFB7ED4BA9509509153AEDD25D33BFC308CE7948535337D8CD649340CFB701AA8CD884EFF1B42DC3C7A3E2464EABD48978E8AC3F6C9739B0C4F58F8BB3"
+          },
+          {
+            "RelativePath": "jhuDrBasedLethalRates.csv",
+            "Hash": "7AAB9697157B3A43A85DDE76DB49E9CE3A7C574316B46EC7CAEDC5840ABF4C4449FB4CC347430F8029CFD5349FFFF1C52EB55AD7F4B88661E800422B15A01581"
+          },
+          {
+            "RelativePath": "jhuTsBasedLethalRates.csv",
+            "Hash": "882C69C5FC42A0522F0065401069F5079A4E5F01D49323AE2F4F6F064C306DECDF4FCCEF551B66DB2A4230295CF8D9F358932BD31FF113B190119985570566DB"
+          }
+        ],
+        "Outputs": [
+          {
+            "RelativePath": "allLethalRates.csv",
+            "Hash": "039C91E2671485BA1ABA06A22ACA8402C7D97B896B6B48CFA67DCE4934A560E032F98DC8BBC8805CA3FC90599CCC7EBF6AFDF863CF87E588ED047CD248B8B62E"
+          }
+        ],
+        "ResourceGroups": [],
+        "SuccessfulExitCodes": [
+          0
+        ],
+        "OutputIndex": 0,
+        "WorkingDirectory": ".",
+        "Command": "RScript $in1 $out1 $in2 $in3",
+        "Signature": "31E3933AF23A3CA0749F205CC08F4BE4E35A21E1",
+        "OutputsCleanDisabled": false
+      }
+    ]
+  },
+  "IsTracked": false
+}
