@@ -12,7 +12,7 @@ paramsOutFile <- args[2]
 pngOutFile <- args[3]
 predTableOutFile <- args[4]
 
-optIters <- 100
+optIters <- 30
 
 get_sir_plot <- function(df) {
   dfg <- gather(df,key = 'group',value='people',Removed,Infected,Susceptible)
@@ -190,10 +190,10 @@ for(i in (1:optIters)) {
   #           ' deltaN ',deltaN))
   
   if(is.null(optRes) || optRes$value > curOptRes$value) {
-    optRes <- curOptRes
-    print(paste0("Iteration ",i,": loss improved to ",optRes$value))
+    print(paste0("Iteration ",i,": loss improved from ",optRes$value," to ",curOptRes$value))
+	optRes <- curOptRes
   } else {
-    print(paste0("Iteration ",i,": loss did not improve (",curOptRes$value,")"))
+    # print(paste0("Iteration ",i,": loss did not improve (",curOptRes$value,")"))
   }
 }
 
