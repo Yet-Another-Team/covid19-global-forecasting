@@ -19,6 +19,6 @@ for(inFile in inFiles) {
   inFullPath <- file.path(inDir,inFile)
   outFullPath <- file.path(outDir,inFile)
   print(paste0("Copiyng ",inFile))
-  file.copy(inFullPath,outFullPath)
+  file.copy(inFullPath,outFullPath,overwrite=T)
 }
 print("Done")
