@@ -1,0 +1,36 @@
+{
+  "FileFormatVersion": 1,
+  "Origin": {
+    "Case": "CommandOrigin",
+    "Fields": [
+      {
+        "Inputs": [
+          {
+            "RelativePath": "..\\ts_predictions_gathered\\",
+            "Hash": "DDB8BA162CD17F29527827FC0F0B0B70B3CCC8E6A8101F7BA8B923F7538B94DAED398A7DE5BE0854FEF4F3F468B47BDDF87107EF1C0866488CAC93289D52B818"
+          },
+          {
+            "RelativePath": "..\\dr_predictions_gathered\\",
+            "Hash": "8B77D707DBE2B910E31A2AD51A7493F6FE0425DC6E9511BD9CEE853371773224863DEA507D9A726505E6AC5F7B3E03EE1CA6133BF7F2EE3FBB205750E321909A"
+          }
+        ],
+        "Outputs": [
+          {
+            "RelativePath": "per_location_predictions\\",
+            "Hash": "2F5BFB718A2393BCC1176BA631E1000DF7EE0477FD1BE7B9608190FB92A3827A2236E9B05084B1140F6CE6D89018EDD81FBC0C5646034753EC082AF44601A2BC"
+          }
+        ],
+        "ResourceGroups": [],
+        "SuccessfulExitCodes": [
+          0
+        ],
+        "OutputIndex": 0,
+        "WorkingDirectory": "..\\..",
+        "Command": "cmd /C copy /Y $in1\\* $out1 && copy /Y $in2\\* $out1",
+        "Signature": "EFF045D3355D399779149338CC2D06DAA9CF071E",
+        "OutputsCleanDisabled": false
+      }
+    ]
+  },
+  "IsTracked": true
+}

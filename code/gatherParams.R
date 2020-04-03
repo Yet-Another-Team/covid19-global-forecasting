@@ -18,6 +18,7 @@ acc <- NULL
 start_date <- as.Date(strptime('2020-01-01',format='%Y-%m-%d',tz="GMT"))
 
 for(pars_df_path in inFiles) {
+  print(paste0("Loading ",pars_df_path))
   inFilePath <- file.path(inDir,pars_df_path)
   json_data <- fromJSON(inFilePath)
   key <- substr(pars_df_path,1,nchar(pars_df_path)-5)
@@ -41,6 +42,7 @@ for(pars_df_path in inFiles) {
     acc <- pars_df
   else
     acc <- rbind(acc,pars_df)
+  print(paste0(pars_df_path," processed"))
 }
 
 write.csv(acc,file=outFile,row.names = F, quote = T)
