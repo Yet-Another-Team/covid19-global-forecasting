@@ -31,8 +31,16 @@ for(pars_df_path in inFiles) {
     country <- key
   }
   
+  if(is.null(json_data[["R0"]])) {
+    print("invalid R0")
+    next;
+  }
+  
   pars_df <- data.frame(do.call("rbind",list(json_data)))
+  
   origColsN <- ncol(pars_df)
+  
+  #print(pars_df)
   pars_df$FirstDate <- as.character(start_date+pars_df$FirstDayNum-1)
   pars_df$PeakDate <- as.character(start_date+pars_df$PeakDayNum-1)
   pars_df$Province <- province
