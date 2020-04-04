@@ -1,0 +1,36 @@
+{
+  "FileFormatVersion": 1,
+  "Origin": {
+    "Case": "CommandOrigin",
+    "Fields": [
+      {
+        "Inputs": [
+          {
+            "RelativePath": "..\\ts_fitted_figures_gathered\\",
+            "Hash": "ED1E71F9C8A3CAFCE93B1DE5CD08284B4D38EF04E657AB0FE7CE86361C9100692E62E2C4874DA8614681491A3E0EF6D4260B716B5E6D4ADD35CBFFDE55EC9743"
+          },
+          {
+            "RelativePath": "..\\dr_fitted_figures_gathered\\",
+            "Hash": "BBE31DB85B1187A54F45CD5DE064527A96FD77F7F186688A691261C06C7BBFE27C55C736B6A4E43D9A9C52FABCC76186B1EFA2584C26A9447720626AF9B0B975"
+          }
+        ],
+        "Outputs": [
+          {
+            "RelativePath": "per_location_figures\\",
+            "Hash": "49C7728F8CAE386BA4096F48736DF0DA4576711268B92BCE88943575001DCD546B598C52F629748242A14CD29F4EFF7EFFCE070F1B31540602E0A68D0E44E4A8"
+          }
+        ],
+        "ResourceGroups": [],
+        "SuccessfulExitCodes": [
+          0
+        ],
+        "OutputIndex": 0,
+        "WorkingDirectory": "..\\..",
+        "Command": "cmd /C copy /Y $in1\\* $out1 && copy /Y $in2\\* $out1",
+        "Signature": "CA1F507F15F80351B25F37277EFCB16FE469587F",
+        "OutputsCleanDisabled": false
+      }
+    ]
+  },
+  "IsTracked": true
+}
