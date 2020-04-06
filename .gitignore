@@ -1,6 +1,14 @@
 // ---alpheus-managed-start---
 **/*.hash
 .alpheus/storage
+SEIR_single_peak_locations/dr_fitted_figures/*.png
+SEIR_single_peak_locations/dr_fitted_params/*.json
+SEIR_single_peak_locations/dr_prediction/*.csv
+SEIR_single_peak_locations/kaggle_sir_fit_dataset/per_location_figures/*.png
+SEIR_single_peak_locations/kaggle_sir_fit_dataset/per_location_predictions/*.csv
+SEIR_single_peak_locations/ts_fitted_figures/*.png
+SEIR_single_peak_locations/ts_fitted_params/*.json
+SEIR_single_peak_locations/ts_prediction/*.csv
 SIR_IR_min_bound/dr_fitted_figures/*.png
 SIR_IR_min_bound/dr_fitted_params/*.json
 SIR_IR_min_bound/dr_fitted_png/*.png
@@ -27,10 +35,10 @@ SIR_IR_min_bound/per_location_prediction/*.csv
 dr_location_data/
 jhu_data/csse_covid_19_daily_reports/
 jhu_data/csse_covid_19_time_series/
-jhu_ts_per_location_single_infected_peak_data/*.csv
-jhu_dr_per_location_single_infected_peak_data/*.csv
 jhu_dr_per_location_data/*.csv
+jhu_dr_per_location_single_infected_peak_data/*.csv
 jhu_ts_per_location_data/*.csv
+jhu_ts_per_location_single_infected_peak_data/*.csv
 official_data/
 // ---alpheus-managed-end---
 venv
