@@ -73,6 +73,9 @@ getPrediction <- function(p) {
 getPredRunTable<-function(p) {
   out <- getPrediction(p)
   
+  outMaxExpV <- max(out$exposed.pred)
+  outMaxExpDay <- out$days[which(out$exposed.pred == outMaxExpV)[1]] 
+  
   outMaxV <- max(out$infected.pred)
   outMaxDay <- out$days[which(out$infected.pred == outMaxV)[1]]
   
@@ -113,7 +116,7 @@ getPredRunTable<-function(p) {
     m1[is.na(m1$removed.pred) & m1$days>=latestOut$days,]$removed.pred <- latestOut$removed.pred
   
   
-  res <- list(table =m1, peakDay = outMaxDay, peakHeight = outMaxV)
+  res <- list(table =m1, peakDay = outMaxDay, peakHeight = outMaxV, peakExpDay= outMaxExpDay, peakExpHeight = outMaxExpV)
 }
 
 rmse <- function(obs,pred) {
@@ -146,6 +149,13 @@ toMinimize <- function(p) {
   
   lowPopLoss <- max(0,maxConfirmed- sigmoid(p[["popFactor"]])*popCount)
   
+  recipTimeLowVal <- 0.01
+  recipTimeHighVal <- 0.7
+  
+  lowGammaPenalty <- max(0, (recipTimeLowVal - sigmoid(p[["sigma"]])))/recipTimeLowVal*100
+  lowSigmaPenalty <- max(0, (recipTimeLowVal - sigmoid(p[["gamma"]])))/recipTimeLowVal*100
+  highSigmaPenalty <- max(0, (sigmoid(p[["sigma"]]) - recipTimeHighVal))/(1.0 - recipTimeHighVal)*100
+  
   #print(paste0('est pop ',sigmoid(p[5])*popCount,' max confiremed ', maxConfirmed))
   
   loss <- tripple_loss(
@@ -155,7 +165,11 @@ toMinimize <- function(p) {
     m1$removed.obs,
     m1$susceptible.pred,
     m1$infected.pred,
-    m1$removed.pred) + lowPopLoss
+    m1$removed.pred) +
+      lowPopLoss +
+      lowGammaPenalty +
+      lowSigmaPenalty +
+      highSigmaPenalty
   return(loss)
 }
 
@@ -211,8 +225,11 @@ paramsList$Gamma <- gamma
 paramsList$FirstDayNum <- round(zeroDayNum)
 paramsList$FirstDayExposedCount <- ceiling(firstDayExposedCount)
 paramsList$FirstDayInfectedCount <- ceiling(firstDayInfectedCount)
-paramsList$PeakDayNum <- bestPrediction$peakDay
-paramsList$PeakDayInfectedCount <- bestPrediction$peakHeight
+paramsList$PeakInfectedDayNum <- bestPrediction$peakDay
+paramsList$PeakInfectedCount <- bestPrediction$peakHeight
+paramsList$PeakExposedDayNum <- bestPrediction$peakExpDay
+paramsList$PeakExposedCount <- bestPrediction$peakExpHeight
+
 paramsList$TotalPopulation <- popCount
 paramsList$PopFactor <- popFactor
 paramsList$EstimatedSusceptiblePopulation <- popCount*popFactor

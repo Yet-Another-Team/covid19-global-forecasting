@@ -6,8 +6,8 @@
       {
         "Inputs": [
           {
-            "RelativePath": "..\\code\\gatherParams.R",
-            "Hash": "281B9730BD8592E67498F824DCB22333766A41E75AA5FF79056B1B5825F5DC79898BDCD210445592FC30418D9841ACA76C99D428E5693CDE1BBD54BBD5DB5C3B"
+            "RelativePath": "..\\code\\gatherParamsSEIR.R",
+            "Hash": "FA06153D73F4BFB964F11EAEA14E8FFE32EF2CF4DFBA03A060A5255B8B3B9C8FFD3D61A919C8B16217387D4A6A77AA59C78B703748B1211D83635D2204500499"
           },
           {
             "RelativePath": "ts_fitted_params\\*.json",
@@ -187,7 +187,7 @@
         "OutputIndex": 0,
         "WorkingDirectory": ".",
         "Command": "RScript $in1 '$in2' $out1",
-        "Signature": "2824BEF9F27D011B5417512A5CA3998C46521381",
+        "Signature": "AFAA3FAF56412E03644B085C66C3975E56415623",
         "OutputsCleanDisabled": false
       }
     ]
