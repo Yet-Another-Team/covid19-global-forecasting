@@ -27,6 +27,8 @@ SIR_IR_min_bound/per_location_prediction/*.csv
 dr_location_data/
 jhu_data/csse_covid_19_daily_reports/
 jhu_data/csse_covid_19_time_series/
+jhu_ts_per_location_single_infected_peak_data/*.csv
+jhu_dr_per_location_single_infected_peak_data/*.csv
 jhu_dr_per_location_data/*.csv
 jhu_ts_per_location_data/*.csv
 official_data/

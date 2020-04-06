@@ -12,7 +12,7 @@ paramsOutFile <- args[2]
 pngOutFile <- args[3]
 predTableOutFile <- args[4]
 
-optIters <- 30
+optIters <- 40
 
 get_sir_plot <- function(df) {
   dfg <- gather(df,key = 'group',value='people',Removed,Infected,Susceptible)
