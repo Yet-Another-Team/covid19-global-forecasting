@@ -1,0 +1,13 @@
+{
+  "FileFormatVersion": 1,
+  "Origin": {
+    "Case": "SourceOrigin",
+    "Fields": [
+      {
+        "RelativePath": "*.json",
+        "Hash": {}
+      }
+    ]
+  },
+  "IsTracked": true
+}
