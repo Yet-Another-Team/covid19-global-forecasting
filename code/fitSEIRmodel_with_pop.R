@@ -45,6 +45,8 @@ obs <- data.frame(
 firstDayIdx <- obsSource$dayNum[which(obsSource$Infected>0)[1]]
 
 #print(paste0('firstDay real Idx ',firstDayIdx))
+gammaMin <- 0.015 # (~66 days) 
+gammaMax <- 0.2 # (~5 days)
 
 getPrediction <- function(p) {
   zeroDayNum = p[["zeroDayNum"]]
@@ -52,7 +54,7 @@ getPrediction <- function(p) {
   firstDayInfectedCount = abs(p[["firstDayInfectedCount"]])
   beta = abs(p[["beta"]]) # each infected individual has a fixed number "beta"  of contacts per day that are sufficient to spread the disease
   sigma = sigmoid(p[["sigma"]])
-  gamma = sigmoid(p[["gamma"]]) # fixed fraction "gamma"  of the infected group will recover during any given day
+  gamma = sigmoid(p[["gamma"]])*(gammaMax-gammaMin)+gammaMin # fixed fraction "gamma"  of the infected group will recover during any given day
   
   N = sigmoid(p[["popFactor"]])*popCount
   
@@ -149,11 +151,10 @@ toMinimize <- function(p) {
   
   lowPopLoss <- max(0,maxConfirmed- sigmoid(p[["popFactor"]])*popCount)
   
-  recipTimeLowVal <- 0.01
-  recipTimeHighVal <- 0.7
+  recipTimeLowVal <- 0.03 #(~33 days)
+  recipTimeHighVal <- 0.7 # (~1.4 day)
   
-  lowGammaPenalty <- max(0, (recipTimeLowVal - sigmoid(p[["sigma"]])))/recipTimeLowVal*100
-  lowSigmaPenalty <- max(0, (recipTimeLowVal - sigmoid(p[["gamma"]])))/recipTimeLowVal*100
+  lowSigmaPenalty <- max(0, (recipTimeLowVal - sigmoid(p[["sigma"]])))/recipTimeLowVal*100
   highSigmaPenalty <- max(0, (sigmoid(p[["sigma"]]) - recipTimeHighVal))/(1.0 - recipTimeHighVal)*100
   
   #print(paste0('est pop ',sigmoid(p[5])*popCount,' max confiremed ', maxConfirmed))
@@ -167,7 +168,6 @@ toMinimize <- function(p) {
     m1$infected.pred,
     m1$removed.pred) +
       lowPopLoss +
-      lowGammaPenalty +
       lowSigmaPenalty +
       highSigmaPenalty
   return(loss)
@@ -213,7 +213,7 @@ firstDayExposedCount = abs(optRes$par[["firstDayExposedCount"]])
 firstDayInfectedCount = abs(optRes$par[["firstDayInfectedCount"]])
 beta = abs(optRes$par[["beta"]])
 sigma = sigmoid(optRes$par[["sigma"]])
-gamma = sigmoid(optRes$par[["gamma"]])
+gamma = sigmoid(optRes$par[["gamma"]])*(gammaMax-gammaMin)+gammaMin
 r0 = beta/gamma
 popFactor = sigmoid(optRes$par[["popFactor"]])
 
