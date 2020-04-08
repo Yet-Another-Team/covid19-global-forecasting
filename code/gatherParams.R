@@ -1,4 +1,5 @@
 require(RJSONIO)
+require(stringr)
 args = commandArgs(trailingOnly=TRUE)
 
 inputPattern <- args[1]
@@ -31,9 +32,11 @@ for(pars_df_path in inFiles) {
     country <- key
   }
   
-  if(is.null(json_data[["R0"]])) {
-    print("invalid R0")
-    next;
+  for(entry in json_data) {
+    if(is.null(entry)) {
+      print("null value in JSON Skippiing")
+      next;
+    }
   }
   
   pars_df <- data.frame(do.call("rbind",list(json_data)))
@@ -41,11 +44,22 @@ for(pars_df_path in inFiles) {
   origColsN <- ncol(pars_df)
   
   #print(pars_df)
-  pars_df$FirstDate <- as.character(start_date+pars_df$FirstDayNum-1)
-  pars_df$PeakDate <- as.character(start_date+pars_df$PeakDayNum-1)
   pars_df$Province <- province
   pars_df$Country <- country
-  pars_df <- pars_df[,c(origColsN+3,origColsN+4,1:4,origColsN+1,5:6,origColsN+2,7:origColsN)]
+  
+  addedDateParams <- 0
+  
+  for(colName in names(pars_df)) {
+    if(endsWith(colName,"DayNum")) {
+      prefix <- substr(colName,0,nchar(colName) - nchar("DayNum"))
+      outName <- paste0(prefix,"Date")
+      datyVal <- pars_df[[colName]]
+      dateVal <- as.character(start_date+datyVal-1) 
+      pars_df[[outName]] <- dateVal
+      addedDateParams <- addedDateParams + 1
+    }
+  }
+
   if(is.null(acc))
     acc <- pars_df
   else

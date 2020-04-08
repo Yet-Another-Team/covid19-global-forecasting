@@ -32,6 +32,9 @@ SIR_IR_min_bound/per_location_fitted_params/*.json
 SIR_IR_min_bound/per_location_fitted_png/*.csv
 SIR_IR_min_bound/per_location_fitted_png/*.png
 SIR_IR_min_bound/per_location_prediction/*.csv
+SigmoidConfirmedModel/dr_per_location_figures/*.png
+SigmoidConfirmedModel/dr_per_location_params/*.json
+SigmoidConfirmedModel/dr_per_location_predictions/*.csv
 dr_location_data/
 jhu_data/csse_covid_19_daily_reports/
 jhu_data/csse_covid_19_time_series/
