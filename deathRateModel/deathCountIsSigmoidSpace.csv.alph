@@ -1,0 +1,40 @@
+{
+  "FileFormatVersion": 1,
+  "Origin": {
+    "Case": "CommandOrigin",
+    "Fields": [
+      {
+        "Inputs": [
+          {
+            "RelativePath": "..\\code\\deathCountCloudInSigmoidSpace.R",
+            "Hash": "4835C93750A65EA2655CBAB4134CBA42D51DAE33CCFE0748F0619027A32DAEB74CC0FB31570DD42394FC219E99C8CA74CBAB5EFD81BEADAA4A93509F788F3BE4"
+          },
+          {
+            "RelativePath": "confirmedSigmoidParams.csv",
+            "Hash": "49DD918F19441780D244CF5EF798BD7E3E78487BBF33855603B3E24850886AAD90219D05DC17577DCF7C585D3A941D83E55FC933820F3B95DCE13C91FC96474A"
+          },
+          {
+            "RelativePath": "..\\jhu_all_per_location_data_gathered\\",
+            "Hash": "187C578E316874FAD794B8D811EB252F63BDE8B5DB44DAEA36F9827CF8C98AE78E8D91F9B0A84C5F0D9E01C721FE0395C06E5B6FF0A9B4A07946336218EEAA42"
+          }
+        ],
+        "Outputs": [
+          {
+            "RelativePath": "deathCountIsSigmoidSpace.csv",
+            "Hash": "75755E249B54B65E4095EDECD5C9E0FAA89C1EA900C2909DB3B9450D3DC1E78CC2C7E5A2941CD1965DC6AA4F00871412A4787A915973FDE528391A662C0B8FF5"
+          }
+        ],
+        "ResourceGroups": [],
+        "SuccessfulExitCodes": [
+          0
+        ],
+        "OutputIndex": 0,
+        "WorkingDirectory": "..",
+        "Command": "RScript $in1 $in2 $out1 $in3",
+        "Signature": "9D1FBF3473026E4DBD5E3270AFECCD501897CB6E",
+        "OutputsCleanDisabled": false
+      }
+    ]
+  },
+  "IsTracked": false
+}

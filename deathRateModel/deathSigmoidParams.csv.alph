@@ -1,0 +1,44 @@
+{
+  "FileFormatVersion": 1,
+  "Origin": {
+    "Case": "CommandOrigin",
+    "Fields": [
+      {
+        "Inputs": [
+          {
+            "RelativePath": "..\\code\\fitDeathSigmoid.R",
+            "Hash": "A4482C9DF4682BD06C25B340E42E110F711FBFBABFF0AA8AC4945C91F4A79FB19FA0240E0BC2A33DFAD96E2B0F3A8F34681B62683F5C417B15F0E4CABCFB207A"
+          },
+          {
+            "RelativePath": "confirmedSigmoidParams.csv",
+            "Hash": "49DD918F19441780D244CF5EF798BD7E3E78487BBF33855603B3E24850886AAD90219D05DC17577DCF7C585D3A941D83E55FC933820F3B95DCE13C91FC96474A"
+          },
+          {
+            "RelativePath": "deathCountIsSigmoidSpace.csv",
+            "Hash": "75755E249B54B65E4095EDECD5C9E0FAA89C1EA900C2909DB3B9450D3DC1E78CC2C7E5A2941CD1965DC6AA4F00871412A4787A915973FDE528391A662C0B8FF5"
+          }
+        ],
+        "Outputs": [
+          {
+            "RelativePath": "deathSigmoidParams.csv",
+            "Hash": "18D8CF9AC79168906DF3D88E1407EF1DDD7141CCB1EF0E6979EECAB7E2772089AEE5DA5C64ADE3C37086F6F81635F3E36BA91A629BE504D69841A3BEB2DEB376"
+          },
+          {
+            "RelativePath": "deathSigmoidFitFigures\\",
+            "Hash": "479672BB293E5BCB18D174B6D7D9BD6ACBE61892EFB143AF379FA6D8B2B63024D7F8F0EED111882E3C2BE781C1E1D9371D29272B9807D78829C42083E31AE776"
+          }
+        ],
+        "ResourceGroups": [],
+        "SuccessfulExitCodes": [
+          0
+        ],
+        "OutputIndex": 0,
+        "WorkingDirectory": ".",
+        "Command": "RScript $in1 $in2 $in3 $out1 $out2",
+        "Signature": "947CE2265F0B012AD36206C080CEA2E122A83A32",
+        "OutputsCleanDisabled": false
+      }
+    ]
+  },
+  "IsTracked": false
+}

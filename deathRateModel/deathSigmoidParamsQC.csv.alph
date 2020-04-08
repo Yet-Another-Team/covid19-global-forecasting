@@ -1,0 +1,36 @@
+{
+  "FileFormatVersion": 1,
+  "Origin": {
+    "Case": "CommandOrigin",
+    "Fields": [
+      {
+        "Inputs": [
+          {
+            "RelativePath": "..\\code\\qcFatalityRateSigmoidParams.R",
+            "Hash": "3EE395DA0487676D19451F833260310E57FB0AE3EEC1A712048B36C93D9EB78677414467FF58432496DC961B3E1F367E59AA7E1008889493C420883148BB4AE5"
+          },
+          {
+            "RelativePath": "deathSigmoidParams.csv",
+            "Hash": "18D8CF9AC79168906DF3D88E1407EF1DDD7141CCB1EF0E6979EECAB7E2772089AEE5DA5C64ADE3C37086F6F81635F3E36BA91A629BE504D69841A3BEB2DEB376"
+          }
+        ],
+        "Outputs": [
+          {
+            "RelativePath": "deathSigmoidParamsQC.csv",
+            "Hash": "5A9CFA97ED0C42C145A8D2BE97E65A02C9878AD3A707ECA456A360D0601A1596B6ABB14E83EF7E6A4F451F507676AAC5EC3F1C8DB872C9C60424B1E487740701"
+          }
+        ],
+        "ResourceGroups": [],
+        "SuccessfulExitCodes": [
+          0
+        ],
+        "OutputIndex": 0,
+        "WorkingDirectory": ".",
+        "Command": "Rscript $in1 $in2 $out1",
+        "Signature": "97E61DFE66C46A9F410ACFB03447E157B2C268D9",
+        "OutputsCleanDisabled": false
+      }
+    ]
+  },
+  "IsTracked": false
+}
