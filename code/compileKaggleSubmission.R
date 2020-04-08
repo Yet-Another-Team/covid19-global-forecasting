@@ -1,12 +1,18 @@
 require(stringr)
+require(pracma)
 
 args = commandArgs(trailingOnly=TRUE)
 
-kaggleTrFile <- args[1]
-kaggleTestFile <- args[2]
-outFile <- args[3]
-jhuTsBasedTrainedSIRdir <- args[4]
-lethalRatesFile <- args[5]
+kaggleTestFile <- args[1]
+outFile <- args[2]
+confirmedCasesSigmoidParamsFile <- args[3]
+deathRatesParamsFile <- args[4]
+
+encodeChars <- function(key) {
+  key <- str_replace_all(key," ","_")
+  key <- str_replace_all(key,"\\*","#")
+  key
+}
 
 getKey <- function(province,country) {
   province <- as.character(province)
@@ -43,13 +49,22 @@ kaggleTestDf$Fatalities <- 0
 
 kaggleKeysDf <- kaggleTestDf[,2:3]
 kaggleKeysDf <- kaggleKeysDf[!duplicated(kaggleKeysDf),]
-kaggleKeys <- data.frame(kaggleKeysDf$Province_State, kaggleKeysDf$Country_Region)
+kaggleKeys <- data.frame(Province_State=kaggleKeysDf$Province_State, Country_Region=kaggleKeysDf$Country_Region)
 
 remainingKeys <- kaggleKeys
 
-# pre-fitted SIR models predictons
-lethalRatesDf <- read.csv(lethalRatesFile)
-lethalRatesDf$Key <- getKey(lethalRatesDf$Province,lethalRatesDf$Country)
+# pre-fitted models predictons
+deathRatesParamsDf <- read.csv(deathRatesParamsFile)
+confirmedCasesSigmoidParamsDf <- read.csv(confirmedCasesSigmoidParamsFile)
+
+confirmedCasesSigmoidParamsDf$key <- getKey(confirmedCasesSigmoidParamsDf$Province, confirmedCasesSigmoidParamsDf$Country)
+
+getFatalities <- function(dayNums,ConfirmedCases,lag,fatalityRate) {
+  maxConfirmed <- max(ConfirmedCases)
+  confirmedFunction <- approxfun(dayNums,ConfirmedCases, yleft =0,yright = maxConfirmed)
+  
+  confirmedFunction(dayNums - lag)*fatalityRate
+}
 
 predictSIR <- function(predictionsFile,lethalRate,dates) {
   N <- length(dates)
@@ -96,40 +111,43 @@ jhuTsSIRPredictor <- list(
   }
 )
 
-# Kaggle Train Set const value extrapolation prediction source
-kaggleTrDf <- read.csv(kaggleTrFile)
-
-kaggleTrainSetConstExtrapolationPredictor <- list(
-  name='Kaggle Train Set const value extrapolation',
+ConfirmedSigmoidPredictor <- list(
+  name='Confirmed cases sigmoid predictor',
   fun=function(province,country,dates) {
-    print(paste0("WARNING: Using train set const-extrapolation as there are no other models for province '",province,"' of country '",country,"' available"))
+    print(paste0('predicting province ',province,' country ',country))
+    province <- encodeChars(province)
+    country <- encodeChars(country)
+    
     N <- length(dates)
-    prediction <- data.frame(ConfirmedCases=rep(0,N),Fatalities=rep(0,N))
-    curLocTrSet <- kaggleTrDf[(kaggleTrDf$Province_State == province) & (kaggleTrDf$Country_Region == country),]
     start_date <- strptime('01-01-2020',format='%m-%d-%Y',tz="GMT")
-    cur_date <- strptime(curLocTrSet$Date,format='%Y-%m-%d',tz="GMT")
-    curLocTrSet$DayNum <- difftime(cur_date,start_date,units='days')+1
-    minDay <- min(curLocTrSet$DayNum)
-    maxDay <- max(curLocTrSet$DayNum)
-    for(i in (1:N)) {
-      curDate <- dates[i]
-      cur_date <- strptime(curDate,format='%Y-%m-%d',tz="GMT")
-      dayNum <- difftime(cur_date,start_date,units='days')+1
-      if(dayNum<minDay)
-        prediction[i,] <- curLocTrSet[curLocTrSet$DayNum == minDay,5:6]
-      else  if(dayNum>maxDay) {
-        prediction[i,] <- curLocTrSet[curLocTrSet$DayNum == maxDay,5:6]
-      } else {
-        prediction[i,] <- curLocTrSet[curLocTrSet$DayNum == dayNum,5:6]
-      }
-    }
+    dayNums <- difftime(strptime(dates,format='%Y-%m-%d',tz="GMT"),start_date,units='days')+1
+    prediction <- data.frame(ConfirmedCases=rep(0,N),Fatalities=rep(0,N))
+    
+    confSigParamsRow <- confirmedCasesSigmoidParamsDf[(confirmedCasesSigmoidParamsDf$Province == province) & (confirmedCasesSigmoidParamsDf$Country == country),]
+    stopifnot(nrow(confSigParamsRow) == 1)
+    
+    deathRateParamsRow <- deathRatesParamsDf[(confirmedCasesSigmoidParamsDf$Province == province) & (confirmedCasesSigmoidParamsDf$Country == country),]
+    stopifnot(nrow(deathRateParamsRow) == 1)
+    
+    inflDayNum <- confSigParamsRow$ConfirmedInflectionDayNum
+    k <- confSigParamsRow$ConfirmedK
+    suscPop <- confSigParamsRow$EstimatedSusceptiblePopulation
+    
+    print(paste0('province ',province,' country ',country,' inflDayNum ',inflDayNum,' k ',k,' suscPop ',suscPop))
+    
+    deathRateLag <- deathRateParamsRow$realDaysLag
+    fatalityRate <- deathRateParamsRow$fatalityRate
+
+    prediction[,1] <- sigmoid(as.numeric((dayNums - inflDayNum)/k))*suscPop
+    #print(paste0("confirmed ",prediction[,1]))
+    prediction[,2] <- getFatalities(dayNums,prediction$ConfirmedCases,deathRateLag,fatalityRate)
     prediction
   }
 )
 
 predictors <- list(
-  jhuTsSIRPredictor,
-  kaggleTrainSetConstExtrapolationPredictor)
+  #jhuTsSIRPredictor,
+  ConfirmedSigmoidPredictor)
 
 predictorIdx <- 1
 while ((nrow(remainingKeys)>0) && (predictorIdx <= length(predictors)) ) {
@@ -140,8 +158,8 @@ while ((nrow(remainingKeys)>0) && (predictorIdx <= length(predictors)) ) {
   curPredictedKeys <- c()
   N <- nrow(remainingKeys)
   for(i in (1:N)) {
-    province <- remainingKeys[i,1]
-    country <- remainingKeys[i,2]
+    province <- as.character(remainingKeys[i,1])
+    country <- as.character(remainingKeys[i,2])
     
     curPredIndicator <- (kaggleTestDf$Province_State == province) & (kaggleTestDf$Country_Region == country)
     curPredIndices <- which(curPredIndicator)
