@@ -1,0 +1,52 @@
+{
+  "FileFormatVersion": 1,
+  "Origin": {
+    "Case": "CommandOrigin",
+    "Fields": [
+      {
+        "Inputs": [
+          {
+            "RelativePath": "code\\analyzeLocationKeys.R",
+            "Hash": "EF2DF6D4D9D1789045505998A0DFCFF306E81B215A4B099A15FE73CC1C22ED0E44B61224C42E46B52CEB811F6306CEFAF370A6248D512434AEBD82B36011BB54"
+          },
+          {
+            "RelativePath": "jhu_data\\csse_covid_19_daily_reports\\",
+            "Hash": "A2C82F67744152DFCF042CC6BD9484060E7C20136CADC10EDBB01C8A3EE241E526BF9883ADD1399B2EC5CE260AA0CC076217D7AB629ADEC19117AF964B05C9DC"
+          },
+          {
+            "RelativePath": "jhu_data\\csse_covid_19_time_series\\",
+            "Hash": "C9B7546C4F986BA88EFF857BF904F29A1C4DF8DB1A693C78D76F7DC74BDC26D5741AB9EB399848C54A663AC13E794E161DE30B9A8AE099A58F8CC1810B62AC15"
+          },
+          {
+            "RelativePath": "official_data\\",
+            "Hash": "2CBFDA13071B6B1EF763BD568DD9600E20FA3FFBE24AD8A582E39286500C87CA6180236A9F6FB657F5D3AC0BBA8372BB357DF601AB746F6821BB859A11D45559"
+          },
+          {
+            "RelativePath": "manual_data\\locations_population.csv",
+            "Hash": "8F497B8773D89B9DB0B2CE7F6AF454E1F4C31CD38A591FAF4037EC6B9177C138358066908052CE38AF21C6657B1719A4D250467B7C55C7C30136D843B60D3EFF"
+          },
+          {
+            "RelativePath": "manual_data\\Jhu_daily_locations_needed_for_kaggle.csv",
+            "Hash": "E4ACFCD83B89E0B42E74FC3922B0127364665A81D0D165C6ED006B87FC04BE1DE468B1A5E03D324011033327AAF7C2EB06D2DE22D092CF0EC323750D97C7599D"
+          }
+        ],
+        "Outputs": [
+          {
+            "RelativePath": "keysAnalysis\\",
+            "Hash": "3B03A4A56B1F2ECC1B173E7F169965D55107E798AEF9230E36AEC3FC6BA7FEB8455FC8545BEACAC291879EC49B227625A62325C2427E0B1B8246863F9CC4EB3A"
+          }
+        ],
+        "ResourceGroups": [],
+        "SuccessfulExitCodes": [
+          0
+        ],
+        "OutputIndex": 0,
+        "WorkingDirectory": ".",
+        "Command": "RScript $in1 $in2 $in3\\time_series_covid19_recovered_global.csv $in4\\test.csv $in5 $in6 $out1",
+        "Signature": "07EA03E5D3E17634FC276F056DF3D82646474DAC",
+        "OutputsCleanDisabled": false
+      }
+    ]
+  },
+  "IsTracked": false
+}

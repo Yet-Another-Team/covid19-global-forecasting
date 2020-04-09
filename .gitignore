@@ -54,6 +54,7 @@ SigmoidConfirmedModel/per_location_params/
 SigmoidConfirmedModel/per_location_predictions/
 deathRateModel/deathCountIsSigmoidSpace.csv
 deathRateModel/deathSigmoidFitFigures/
+keysAnalysis/
 venv
 archive
 Rplots.pdf
