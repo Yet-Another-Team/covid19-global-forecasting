@@ -6,25 +6,11 @@
       {
         "Inputs": [
           {
-            "RelativePath": "..\\code\\SplitJhuDailyDataByLocations.R",
-            "Hash": "D305B3A8A41218CD84AC44E7354F264429657A9B89D86AAFE453095E9DF28E211DEF50DE4D9465A6E5A1DA0BF53C6F7429EA783173B344CEBD11F40C60F28654"
+            "RelativePath": "code\\gather.R",
+            "Hash": "0B0F0669B78DCD50AE76E2F6FAD5D639FAB7DDF31FED0BBE422B04A69FD2AB6910CAC65E61B5688A85B2CDC3195382A95D8CF9DE5A87BB2CFCC7BD48639497A3"
           },
           {
-            "RelativePath": "..\\jhu_data\\csse_covid_19_daily_reports\\",
-            "Hash": "AEC1D4FEFBC522B6B325F90FAD2D4D9A8FCC405F7E2DF48396CAABB89027958A08676CE1A9AF88D6A16838300C81723422C4A77168E3B5FF9C508722C1B2AC40"
-          },
-          {
-            "RelativePath": "..\\manual_data\\locations_population.csv",
-            "Hash": "8F497B8773D89B9DB0B2CE7F6AF454E1F4C31CD38A591FAF4037EC6B9177C138358066908052CE38AF21C6657B1719A4D250467B7C55C7C30136D843B60D3EFF"
-          },
-          {
-            "RelativePath": "..\\manual_data\\Jhu_daily_locations_needed_for_kaggle.csv",
-            "Hash": "E4ACFCD83B89E0B42E74FC3922B0127364665A81D0D165C6ED006B87FC04BE1DE468B1A5E03D324011033327AAF7C2EB06D2DE22D092CF0EC323750D97C7599D"
-          }
-        ],
-        "Outputs": [
-          {
-            "RelativePath": "*.csv",
+            "RelativePath": "jhu_dr_per_location_data\\*.csv",
             "Hash": {
               "Alabama@US": "664CACBA88EA0C92C7EA9E369AF425FBBD25F6A98D8024676E20C2CC32A26C8E1BF01F96E2C3B2498EDAC96BA4C79014480109A471A29D9FD57509988CE37EA4",
               "Alaska@US": "218DFFC0F9F6A8733B13F0228B284B684C2FE9C510745E68FF19772D78DA9841E8FC0ED84F36F81CEEBCBEF7DFC16F1484A36D09C364C80D732E9E158A2AADF1",
@@ -95,14 +81,20 @@
             }
           }
         ],
+        "Outputs": [
+          {
+            "RelativePath": "jhu_dr_per_location_data_gathered\\",
+            "Hash": "C8AA8D4FA5D2BB254C0F88ECA61B63128C9DDDF351E9135714DDD6D78D1EA54984B3342C65E7A200A911C09B1086B18BEE70FC0A29E4D1D8C7E96AD2A64E4708"
+          }
+        ],
         "ResourceGroups": [],
         "SuccessfulExitCodes": [
           0
         ],
         "OutputIndex": 0,
-        "WorkingDirectory": "..",
-        "Command": "RScript $in1 $in2 $in3 $in4 $out1",
-        "Signature": "D8F6E0A805C156424227906BE820C5BF69521C07",
+        "WorkingDirectory": ".",
+        "Command": "RScript $in1 '$in2' $out1",
+        "Signature": "675293E826D372817F0FCD7B58049FB1B5CF2245",
         "OutputsCleanDisabled": false
       }
     ]

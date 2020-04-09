@@ -7,6 +7,7 @@ kaggleTestFile <- args[1]
 outFile <- args[2]
 confirmedCasesSigmoidParamsFile <- args[3]
 deathRatesParamsFile <- args[4]
+seirPrediction <- args[5]
 
 encodeChars <- function(key) {
   key <- str_replace_all(key," ","_")
@@ -59,11 +60,12 @@ confirmedCasesSigmoidParamsDf <- read.csv(confirmedCasesSigmoidParamsFile)
 
 confirmedCasesSigmoidParamsDf$key <- getKey(confirmedCasesSigmoidParamsDf$Province, confirmedCasesSigmoidParamsDf$Country)
 
-getFatalities <- function(dayNums,ConfirmedCases,lag,fatalityRate) {
-  maxConfirmed <- max(ConfirmedCases)
-  confirmedFunction <- approxfun(dayNums,ConfirmedCases, yleft =0,yright = maxConfirmed)
+getFatalities <- function(dayNums,confirmedCases,lag,fatalityRate) {
+  maxConfirmed <- max(confirmedCases)
+  #print(paste0('max confirmed is ',maxConfirmed))
+  confirmedFunction <- approxfun(dayNums,confirmedCases, yleft =0, yright = maxConfirmed,rule=2)
   
-  confirmedFunction(dayNums - lag)*fatalityRate
+  round(confirmedFunction(dayNums - lag)*fatalityRate)
 }
 
 predictSIR <- function(predictionsFile,lethalRate,dates) {
@@ -79,11 +81,11 @@ predictSIR <- function(predictionsFile,lethalRate,dates) {
     cur_date <- strptime(curDate,format='%Y-%m-%d',tz="GMT")
     dayNum <- difftime(cur_date,start_date,units='days')+1
     if(dayNum<minDay)
-      prediction[i,] <- predDf[predDf$days == minDay,5:6]
+      prediction[i,] <- predDf[predDf$days == minDay,6:7]
     else  if(dayNum>maxDay) {
-      prediction[i,] <- predDf[predDf$days == maxDay,5:6]
+      prediction[i,] <- predDf[predDf$days == maxDay,6:7]
     } else {
-      prediction[i,] <- predDf[predDf$days == dayNum,5:6]
+      prediction[i,] <- predDf[predDf$days == dayNum,6:7]
     }
   }
   prediction$ConfirmedCases <- prediction[,1] + prediction[,2] # infected , removed
@@ -96,17 +98,39 @@ jhuTsSIRPredictor <- list(
   name="JHU timeseries data based fitted SIR models",
   fun=function(province,country,dates) {
     key <- getKey(province = province, country = country)
-    predictionFile <- file.path(jhuTsBasedTrainedSIRdir,'per_location_prediction',paste0(key,'.csv'))
+    predictionFile <- file.path(seirPrediction,'ts_prediction',paste0(key,'.csv'))
     if(!file.exists(predictionFile))
       return(NULL)
     else {
-      lr_row <- lethalRatesDf[lethalRatesDf$Key == key,]
-      if(nrow(lr_row) == 0) {
-        print(paste0("WARNING: can't find lethal rates for key ",key))
-        return(NULL)
-      }
-      lr <- lr_row$DeathToRemovedRatio
-      return(predictSIR(predictionFile,lr, dates))
+      print(paste0('predicting province ',province,' country ',country))
+      #print(dates)
+      predicted <- predictSIR(predictionFile,0, dates)
+      
+      
+      # here we need up update fatalities from Sigmoid model
+      province <- encodeChars(province)
+      country <- encodeChars(country)
+      
+      deathRateParamsRow <- deathRatesParamsDf[(confirmedCasesSigmoidParamsDf$Province == province) & (confirmedCasesSigmoidParamsDf$Country == country),]
+      stopifnot(nrow(deathRateParamsRow) == 1)
+      
+      deathRateLag <- deathRateParamsRow$realDaysLag
+      fatalityRate <- deathRateParamsRow$fatalityRate
+      
+      start_date <- strptime('01-01-2020',format='%m-%d-%Y',tz="GMT")
+      dayNums <- difftime(strptime(dates,format='%Y-%m-%d',tz="GMT"),start_date,units='days')+1
+      print(paste0('province ',province,' country ',country,' pred fatalities: deathRateLag ',deathRateLag,' fatalityRate ',fatalityRate))
+      #print(dayNums)
+      #print("confirmed")
+      #print(predicted$ConfirmedCases)
+      fatalities <- getFatalities(dayNums,predicted$ConfirmedCases,deathRateLag,fatalityRate)
+      #print("fatalities")
+      #print(fatalities)
+      predicted$Fatalities <- fatalities
+      
+      print(paste0('done with province ',province,' country ',country))
+      #print(predicted)
+      return(predicted)
     }
   }
 )
@@ -146,7 +170,7 @@ ConfirmedSigmoidPredictor <- list(
 )
 
 predictors <- list(
-  #jhuTsSIRPredictor,
+  jhuTsSIRPredictor,
   ConfirmedSigmoidPredictor)
 
 predictorIdx <- 1

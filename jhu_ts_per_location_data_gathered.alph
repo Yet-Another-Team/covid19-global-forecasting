@@ -6,21 +6,11 @@
       {
         "Inputs": [
           {
-            "RelativePath": "..\\code\\SplitJhuTimeseriesDataByLocations.R",
-            "Hash": "154522B15D52DE8110C60EE4F4D1ED0860084FE4C3562BD2D784389A807100DAB62315B1024A026052BF72B01E8B1F0671EC32996047A6FFB22904F1638A4CFB"
+            "RelativePath": "code\\gather.R",
+            "Hash": "0B0F0669B78DCD50AE76E2F6FAD5D639FAB7DDF31FED0BBE422B04A69FD2AB6910CAC65E61B5688A85B2CDC3195382A95D8CF9DE5A87BB2CFCC7BD48639497A3"
           },
           {
-            "RelativePath": "..\\jhu_data\\csse_covid_19_time_series\\",
-            "Hash": "7713FA3592E0B1D86BEB9511953B9386AC9A50863C6E3E3B0B81F59DF0ACA02EC6F5AA8FE70492C1EA88E0D1BA0144972C2B596690505846EE6FEC3EB3BFF386"
-          },
-          {
-            "RelativePath": "..\\manual_data\\locations_population.csv",
-            "Hash": "8F497B8773D89B9DB0B2CE7F6AF454E1F4C31CD38A591FAF4037EC6B9177C138358066908052CE38AF21C6657B1719A4D250467B7C55C7C30136D843B60D3EFF"
-          }
-        ],
-        "Outputs": [
-          {
-            "RelativePath": "*.csv",
+            "RelativePath": "jhu_ts_per_location_data\\*.csv",
             "Hash": {
               "Afghanistan": "59FEDE88E0171AC48FDB3BC76A9B09B6A064E3077BABCA73F89824C32EC5CB091B53F35C061C56D19A9426EA948D4298C394BEAC5756975608263AFD22D2B3AF",
               "Albania": "5868469C963790295E7D38D1DF33A6174516B66E5807CCF80481C080BAA46314D0C85DA43573A8EF11D6940EAB898D5D342D72BB2BFB72C2B33F88BF3ECD428A",
@@ -266,14 +256,20 @@
             }
           }
         ],
+        "Outputs": [
+          {
+            "RelativePath": "jhu_ts_per_location_data_gathered\\",
+            "Hash": "959A25985DAFE013410E641D6D64BDA16031488B701DF5E58E60CFAFA576A0E5BB929D59EC9455FC027E8E833D365DA22F26D04D992AF9AACE72115C362737D4"
+          }
+        ],
         "ResourceGroups": [],
         "SuccessfulExitCodes": [
           0
         ],
         "OutputIndex": 0,
-        "WorkingDirectory": "..",
-        "Command": "RScript $in1 $in2 $in3 $out1",
-        "Signature": "BE0881F7B469BEACC42FE1890D863441D24F1B2D",
+        "WorkingDirectory": ".",
+        "Command": "Rscript $in1 '$in2' $out1",
+        "Signature": "EFC77A3DC3B1C1F23539B5DA9EECF91B59707295",
         "OutputsCleanDisabled": false
       }
     ]

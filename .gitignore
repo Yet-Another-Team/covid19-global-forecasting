@@ -1,7 +1,6 @@
 // ---alpheus-managed-start---
 **/*.hash
 .alpheus/storage
-jhu_all_per_location_data/*.csv
 SEIR_single_peak_locations/dr_fitted_figures/*.png
 SEIR_single_peak_locations/dr_fitted_params/*.json
 SEIR_single_peak_locations/dr_prediction/*.csv
@@ -37,12 +36,26 @@ SigmoidConfirmedModel/dr_per_location_figures/*.png
 SigmoidConfirmedModel/dr_per_location_params/*.json
 SigmoidConfirmedModel/dr_per_location_predictions/*.csv
 dr_location_data/
+jhu_all_per_location_data/*.csv
 jhu_data/csse_covid_19_daily_reports/
 jhu_data/csse_covid_19_time_series/
 jhu_dr_per_location_data/*.csv
 jhu_dr_per_location_single_infected_peak_data/*.csv
 jhu_ts_per_location_data/*.csv
 jhu_ts_per_location_single_infected_peak_data/*.csv
+jhu_ts_per_location_single_infected_peak_data_gathered/
 official_data/
 // ---alpheus-managed-end---
+jhu_ts_per_location_data_gathered
+jhu_dr_per_location_data_gathered
+jhu_all_per_location_data_gathered
+SigmoidConfirmedModel/per_location_figures/
+SigmoidConfirmedModel/per_location_params/
+SigmoidConfirmedModel/per_location_predictions/
+deathRateModel/deathCountIsSigmoidSpace.csv
+deathRateModel/deathSigmoidFitFigures/
 venv
+archive
+Rplots.pdf
+.Rhistory
+

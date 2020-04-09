@@ -107,7 +107,7 @@ get_site_df <- function(province,country, N) {
 }
 
 globalTs <- NULL
-globalPopulation <- 7700000000
+globalPopulation <- 329227746
 
 #print(population[,1:2])
 for(key in neededKeys) {
@@ -121,7 +121,7 @@ for(key in neededKeys) {
   }
   popRow <- population[(population$Province.State == province) & (population$Country.Region == country),]
   if(nrow(popRow)>0) {
-    popCount <- population[1,3]
+    popCount <- popRow[1,3]
     siteDf <- get_site_df(province,country,popCount)
     
     #print(head(siteDf))

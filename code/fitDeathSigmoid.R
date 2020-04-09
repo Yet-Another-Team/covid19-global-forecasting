@@ -16,11 +16,15 @@ getKey <- function(province,country) {
 
 args = commandArgs(trailingOnly=TRUE)
 
-sigmoidSpaceConfirmedTsFile <- args[1]
-outputFile <- args[2]
-outdirFigures <- args[3]
+sigmoidSpaceParamsFile <- args[1]
+sigmoidSpaceConfirmedTsFile <- args[2]
+outputFile <- args[3]
+outdirFigures <- args[4]
 
 sigmoidSpaceConfirmedTsDf <- read.csv(sigmoidSpaceConfirmedTsFile)
+print(paste0("read ",nrow(sigmoidSpaceConfirmedTsDf)," sigmoid space death timeseries"))
+sigmoidSpaceParamsDf <- read.csv(sigmoidSpaceParamsFile)
+print(paste0("read ",nrow(sigmoidSpaceParamsDf)," sigmoid space parameters"))
 
 sigmoidSpaceConfirmedTsDf$key <- getKey(sigmoidSpaceConfirmedTsDf$province, sigmoidSpaceConfirmedTsDf$country)
 
@@ -28,6 +32,8 @@ locationsDf <- data.frame(
   province=sigmoidSpaceConfirmedTsDf$province,
   country=sigmoidSpaceConfirmedTsDf$country)
 locationsDf <- locationsDf[!duplicated(locationsDf),]
+
+print(paste0("sigmoid space death timeseries for ",nrow(locationsDf)," locations"))
 
 locationsDf$key <- getKey(locationsDf$province, locationsDf$country)
 
@@ -42,6 +48,10 @@ for(i in (1:N)) {
   country <- rowDf$country
   key <- rowDf$key
   locSpecificDf <- sigmoidSpaceConfirmedTsDf[sigmoidSpaceConfirmedTsDf$key == key,]
+  #print(key)
+  locSpecificParamsDf <- sigmoidSpaceParamsDf[(sigmoidSpaceParamsDf$Province == province) & (sigmoidSpaceParamsDf$Country == country),]
+  #print(locSpecificParamsDf)
+  k <- locSpecificParamsDf$ConfirmedK
   
   rmse <- function(obs,pred) {
     sqrt(mean((obs-pred)*(obs-pred)))
@@ -71,10 +81,12 @@ for(i in (1:N)) {
       #print(paste0("Iteration ",j,": loss did not improve (",curOptRes$value,")"))
     }
   }
+  
   rmse <- optRes$value
   sigmoidSpaceLag <- optRes$par[["sigmoidSpaceLag"]]
+  realDaysLag <- sigmoidSpaceLag*k
   fatalityRate <- sigmoid(optRes$par[["fatalityRate"]])
-  curResRowDf <- data.frame(province=province, country=country, loss = rmse, sigmoidSpaceLag = sigmoidSpaceLag, fatalityRate=fatalityRate, key = key)
+  curResRowDf <- data.frame(province=province, country=country, loss = rmse, sigmoidSpaceLag = sigmoidSpaceLag, realDaysLag=realDaysLag, fatalityRate=fatalityRate, key = key)
   print(paste0("province ",province," country ",country," loss ",rmse, " sigmoidSpaceLag ",sigmoidSpaceLag,' fatalityRate ',fatalityRate))
   if(is.null(resDf)) {
     resDf <- curResRowDf

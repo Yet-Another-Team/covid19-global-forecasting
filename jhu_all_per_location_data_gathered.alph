@@ -1,0 +1,36 @@
+{
+  "FileFormatVersion": 1,
+  "Origin": {
+    "Case": "CommandOrigin",
+    "Fields": [
+      {
+        "Inputs": [
+          {
+            "RelativePath": "jhu_dr_per_location_data_gathered\\",
+            "Hash": "C8AA8D4FA5D2BB254C0F88ECA61B63128C9DDDF351E9135714DDD6D78D1EA54984B3342C65E7A200A911C09B1086B18BEE70FC0A29E4D1D8C7E96AD2A64E4708"
+          },
+          {
+            "RelativePath": "jhu_ts_per_location_data_gathered\\",
+            "Hash": "959A25985DAFE013410E641D6D64BDA16031488B701DF5E58E60CFAFA576A0E5BB929D59EC9455FC027E8E833D365DA22F26D04D992AF9AACE72115C362737D4"
+          }
+        ],
+        "Outputs": [
+          {
+            "RelativePath": "jhu_all_per_location_data_gathered\\",
+            "Hash": "7B8DCD9C3C0D8EEF855D9C81FB4295E368FC64CD307468C0F6F576DD65D467B67299B4B9CAA07E07D1BC4B05B0D3CA1D9952FAC51D8DCB6D607CB21CB2262238"
+          }
+        ],
+        "ResourceGroups": [],
+        "SuccessfulExitCodes": [
+          0
+        ],
+        "OutputIndex": 0,
+        "WorkingDirectory": ".",
+        "Command": "cmd.exe /C copy $in1 $out1 && copy $in2 $out1",
+        "Signature": "346AF594E98EEA379C4730E201580831170A6975",
+        "OutputsCleanDisabled": false
+      }
+    ]
+  },
+  "IsTracked": false
+}
