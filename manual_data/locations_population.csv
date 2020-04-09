@@ -126,6 +126,7 @@ Guadeloupe,France,394110,
 Mayotte,France,256518,
 Reunion,France,852924,
 Saint Barthelemy,France,10000,
+Saint Pierre and Miquelon,France,5801,https://www.worldometers.info/world-population/saint-pierre-and-miquelon-population/
 St Martin,France,36824,
 ,French Guiana,290691,
 ,Gabon,2025000,
@@ -180,6 +181,7 @@ Greenland,Denmark,56171,
 ,Maldives,436330,
 ,Mali,18540000,
 ,Malta,493559,
+,Malawi,19129952,https://www.worldometers.info/world-population/malawi-population/
 ,Martinique,376480,
 ,Mauritania,4420000,
 ,Mauritius,1265000,
@@ -196,6 +198,7 @@ Greenland,Denmark,56171,
 ,Nepal,29300000,
 Aruba,Netherlands,4829,
 Curacao,Netherlands,25386,
+"Bonaire, Sint Eustatius and Saba",Netherlands,25157,https://en.wikipedia.org/wiki/Caribbean_Netherlands
 Sint Maarten,Netherlands,41109,
 ,Netherlands,17180000,
 Netherlands,Netherlands,17180000,
@@ -225,7 +228,9 @@ Netherlands,Netherlands,17180000,
 ,Saint Vincent and the Grenadines,109897,
 ,Saint Kitts and Nevis,55345,
 ,San Marino,33400,
+,Sao Tome and Principe,218152,https://www.worldometers.info/world-population/sao-tome-and-principe-population/
 ,Saudi Arabia,32940000,
+,South Sudan,11161764,https://www.worldometers.info/world-population/south-sudan-population/
 ,Senegal,15850000,
 ,Serbia,7022000,
 ,Seychelles,95843,
@@ -323,6 +328,7 @@ Gibraltar,United Kingdom,30000,https://www.bbc.com/news/newsbeat-46316965
 Montserrat,United Kingdom,4992,https://www.worldometers.info/world-population/montserrat-population/
 British Virgin Islands,United Kingdom,30181,https://www.worldometers.info/world-population/british-virgin-islands-population/
 Turks and Caicos Islands,United Kingdom,38586,https://www.worldometers.info/world-population/turks-and-caicos-islands-population/
+Falkland Islands (Malvinas),United Kingdom,3453,https://www.worldometers.info/world-population/falkland-islands-malvinas-population/
 ,United Kingdom,66440000,
 United Kingdom,United Kingdom,66440000,
 ,Uruguay,3457000,
@@ -330,5 +336,6 @@ United Kingdom,United Kingdom,66440000,
 ,Venezuela,31980000,
 ,Vietnam,95540000,
 ,West Bank and Gaza,4776131,https://en.wikipedia.org/wiki/Demographics_of_the_Palestinian_territories#Population_2
+,Western Sahara,593611,https://www.worldometers.info/world-population/western-sahara-population/
 ,Zambia,17090000,
 ,Zimbabwe,16530000,
