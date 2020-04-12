@@ -14,8 +14,13 @@ predTableOutFile <- args[4]
 
 betaChangeIntervalDays <- 7
 
-optIters <- 40
-fineIters <- 5
+start_date <- as.Date(strptime('01-01-2020',format='%m-%d-%Y',tz="GMT"))
+
+#optIters <- 75
+#fineIters <- 6
+optIters <- 10
+fineIters <- 4
+
 
 softplus.shift <- log(exp(1)-1)
 softplus <- function(x) {
@@ -31,7 +36,7 @@ nonNegativeParam <- function(x) {softplus(x + softplus.shift)}
 SIR <- function(t, state, parameters, get_beta) {
   with(as.list(c(state, parameters)),{
     
-    beta <- get_beta(t,parameters)
+    beta <- get_beta(t)
     # rate of change
     dS = - beta *I*S/N
     dI = beta*I*S/N - gamma*I
@@ -63,29 +68,39 @@ getPrediction <- function(p) {
   firstDayInfectedCount = nonNegativeParam(p[["firstDayInfectedCount"]])
   gamma = sigmoid(p[["gamma"]]) # fixed fraction "gamma"  of the infected group will recover during any given day
   N = popCount
-  zeroDayNum <- round(zeroDayNum,1) # to align with 0.1 simulation step
   
   b1_idx <- which(names(p) == 'b1')
   paramsCount <- length(p)
   
-  get_beta <- function(t,p) {
-    t0 <- t - zeroDayNum
-    ode_b1_idx <- 3
-    weekIdx <- (t0 %/% betaChangeIntervalDays) # zero based
-    weekIdx <- min(weekIdx, (paramsCount - b1_idx))
+  # beta spline model construction
+  effective_b_params <- unlist(p[b1_idx:paramsCount])
+  nonNegBetaScales <- nonNegativeParam(effective_b_params)
+  bCount <- length(effective_b_params)
+  get_beta <- NULL
+  if(bCount>1) {
+    betaKnots <- rep(0,bCount) # multipling all of the passed weeks b_scales
+    knotDayNum <- rep(0,bCount)
+    for(i in 1:bCount){
+      proIndicator <- c(rep(T,i),rep(F,(bCount-i)))
+      betaKnots[i] <- prod(nonNegBetaScales[proIndicator])
+      knotDayNum[i] <- zeroDayNum + 7*i - 3.5 # middle of the week
+    }
     
+    # forcing spline to beconstant at the right bound
+    betaKnots <- c(betaKnots, rep(betaKnots[bCount],5))
+    knotDayNum <- c(knotDayNum, seq(knotDayNum[bCount] + 7, knotDayNum[bCount] + 5*7, by=7))
     
-    
-    # each of the b_params is scale factor K so that b(week_i+1) = b(week_i) * all_b_params(week_num)
-    effective_b_params <- unlist(p[ode_b1_idx:(ode_b1_idx+weekIdx)])
-    nonNegBetaScales <- nonNegativeParam(effective_b_params)
-    beta <- prod(nonNegBetaScales) # multipling all of the passed weeks b_scales
-    beta
+    get_beta <- splinefun(knotDayNum, betaKnots, method = "natural")
+  } else {
+    get_beta <- function(t) nonNegBetaScales
   }
   
+  zeroDayNum <- round(zeroDayNum,1) # to align with 0.1 simulation step
   odeDays <- seq(zeroDayNum, zeroDayNum+365, by = 0.1)
+  
+  
   odeParameters <- c(gamma=gamma, N=N)
-  odeParameters <- c(odeParameters,unlist(p[b1_idx:paramsCount])) # mixing up b1 .. bN
+  #odeParameters <- c(odeParameters,unlist(p[b1_idx:paramsCount])) # mixing up b1 .. bN
   odeZeroState <- c(S=N, I = firstDayInfectedCount,R=0)
   
   out <- as.data.frame(ode(
@@ -163,10 +178,6 @@ toMinimize <- function(p) {
   pred <- getPredRunTable(p)
   m1 <- pred$table
   
-  # composing penalty for beta changes for the future time (out of observed days)
-  maxDayNum <- max(m1$days)
-  zeroDayNum = p[["zeroDayNum"]]
-  
   l1 <- obs_match_loss(
     rmse,
     m1$infected.obs,
@@ -180,13 +191,13 @@ toMinimize <- function(p) {
   betaChangePenalty <- 0
   if(penalty_b_start_idx <= paramsCount) {
     pRange <- unlist(p[penalty_b_start_idx:paramsCount])
-    betaChangePenalty <- sum(pRange*pRange) # L2 norm
+    betaChangePenalty <- mean(pRange*pRange) # L2 norm
   }
   
   
   #print(paste0('est pop ',sigmoid(p[5])*popCount,' max confiremed ', maxConfirmed))
   
-  loss <- l1 * (1+ betaChangePenalty/10.0)
+  loss <- l1 * (1+ betaChangePenalty/5.0)
   return(loss)
 }
 
@@ -201,27 +212,26 @@ for(i in (1:optIters)) {
              gamma=runif(1),
              b1 = rnorm(1)
             )
-  #startP <- c(startP,bParams)
-  #print(startP)
-  #print(toMinimize(startP)) # loss value at start
-  optCtr <- list(trace=0,maxit=300) # set trace to value higher than 0, if you want details
-  #print(toMinimize(startP))
+  optCtr <- list(trace=0,maxit=500) # set trace to value higher than 0, if you want details
+  
   curOptRes <- optim(startP, toMinimize,control = optCtr)
   if(curOptRes$convergence > 1)
     next; # we analyze only converged results
   
   if(is.null(optRes) || optRes$value > curOptRes$value) {
-    print(paste0("Iteration ",i,": loss improved from ",optRes$value," to ",curOptRes$value))
+    print(paste0("Iteration ",i,": coarse loss improved from ",optRes$value," to ",curOptRes$value))
 	  optRes <- curOptRes
   } else {
     #print(paste0("Iteration ",i,": loss did not improve (",curOptRes$value,")"))
   }
 }
 
-print("Best sparse fit:")
-print(optRes)
-print(paste0("Beta: ",nonNegativeParam(optRes[["b1"]])))
-print(paste0("Gamma: ",sigmoid(optRes[["gamma"]])))
+print("Best coarse fit:")
+#print(optRes)
+print(paste0("First day: ",optRes$par[["zeroDayNum"]]))
+print(paste0("Beta: ",nonNegativeParam(optRes$par[["b1"]])))
+print(paste0("Gamma: ",sigmoid(optRes$par[["gamma"]])))
+print(paste0("Loss: ",optRes$value))
 # how many weeks to model?
 bParamsCount <- ((max(obsSource$dayNum) - min(obsSource$dayNum) + 1) %/% betaChangeIntervalDays)+1 # weeks
 print(paste0(bParamsCount," modelling intervals to model"))
@@ -230,10 +240,10 @@ print(paste0(bParamsCount," modelling intervals to model"))
 print("Final precise fit began")
 preOptimized <- optRes$par
 if(bParamsCount == 1) {
-  fineIters <- 1
+  fineIters <- 2
 }
 
-optFineRes <- NULL
+optFineRes <- optRes
 # long train run
 for(i in 1:fineIters) {
   set.seed(12323 + 123*i)
@@ -242,20 +252,48 @@ for(i in 1:fineIters) {
   fineStartPars <- c(preOptimized,bScales)
   
   optCtr <- list(trace=0,maxit=as.integer(9000+bParamsCount*1000)) # set trace to value higher than 0, if you want details
-  #optCtr <- list(trace=1,maxit=1000) # set trace to value higher than 0, if you want details
-  finRes <- optim(fineStartPars, toMinimize,control = optCtr)
-  if(is.null(optFineRes) || optFineRes$value > finRes$value) {
-    print(paste0("Iteration ",i,": loss improved from ",optFineRes$value," to ",finRes$value))
+  #optCtr <- list(trace=1,maxit=200) # set trace to value higher than 0, if you want details
+  methodToUse <- NULL
+  if(i %% 2 == 1) {
+    methodToUse <- "BFGS"
+  } else {
+    methodToUse <- "Nelder-Mead"
+  }
+  
+  options(warn=-1)
+  sink("NUL")
+  finRes <- tryCatch(
+    optim(fineStartPars, toMinimize,control = optCtr, method=methodToUse),
+    error = function(e) NULL
+    )
+  sink()
+  options(warn=0)
+  
+  if(!is.null(finRes) && (is.null(optFineRes) || optFineRes$value > finRes$value)) {
+    print(paste0("Iteration ",i," (",methodToUse,"): fine loss improved from ",optFineRes$value," to ",finRes$value))
     optFineRes <- finRes
   } else {
-    print(paste0("Iteration ",i,": loss did not improve (",finRes$value,")"))
+    print(paste0("Iteration ",i," (",methodToUse,"): fine loss did not improve (",finRes$value,")"))
   }
 }
 
-bestPrediction <- getPredRunTable(finRes$par)
+# coersing beta scale for future to 0.0 (thus scales to 1.0)
+b1_idx <- which(names(optFineRes$par) == 'b1')
+paramsCount <- length(optFineRes$par)
 
-b1_idx <- which(names(finRes$par) == 'b1')
-bScales <- nonNegativeParam(unlist(finRes$par[b1_idx:(length(finRes$par))]))
+bestPrediction <- getPredRunTable(optFineRes$par)
+zeroDayNum <- optFineRes$par[["zeroDayNum"]]
+latestObsDayNum <- max(obsSource$dayNum)
+weeksIncluded <- as.integer(ceiling((latestObsDayNum - zeroDayNum + 1) / betaChangeIntervalDays))
+firstParToZero <- b1_idx + weeksIncluded
+if(firstParToZero <= paramsCount) {
+  print(paste0("Coersing ",(paramsCount-firstParToZero+1)," future beta scales"))
+  optFineRes$par[firstParToZero:paramsCount] <- 0
+}
+
+# now calculating beta
+
+bScales <- nonNegativeParam(unlist(optFineRes$par[b1_idx:(length(optFineRes$par))]))
 names(bScales) <- NULL
 bCount <- length(bScales)
 beta <- rep(0.0,bCount)
@@ -264,28 +302,36 @@ for(i in 1:bCount){
   beta[i] <- prod(bScales[proIndicator])
 }
 
-print("Optimization finished. Results")
-print(finRes)
+print("Fine optimization finished. Results")
+#print(optFineRes)
 
-rmse = finRes$value
-zeroDayNum = finRes$par[["zeroDayNum"]]
-firstDayInfectedCount = nonNegativeParam(finRes$par[["firstDayInfectedCount"]])
-gamma = sigmoid(finRes$par[["gamma"]])
+rmse = optFineRes$value
+zeroDayNum = optFineRes$par[["zeroDayNum"]]
+firstDayInfectedCount = nonNegativeParam(optFineRes$par[["firstDayInfectedCount"]])
+gamma = sigmoid(optFineRes$par[["gamma"]])
 r0 = beta/gamma
+
+recentIdx <- min(b1_idx + weeksIncluded - 1 , paramsCount)
+recentBeta <- beta[recentIdx]
+recentR0<- r0[recentIdx]
 
 paramsList <- list()
 paramsList$Gamma <- gamma
-paramsList$Beta <- beta
+paramsList$WeeklyBeta <- beta
+paramsList$RecentBeta <- recentBeta
 if(length(bScales)>=2) {
   paramsList$BetaScales <- bScales[2:length(bScales)]
 }
-paramsList$R0 <- r0
+paramsList$WeeklyR0 <- r0
+paramsList$RecentR0 <- recentR0
 paramsList$FirstDayNum <- zeroDayNum
 paramsList$FirstDayInfectedCount <- firstDayInfectedCount
 paramsList$PeakDayNum <- bestPrediction$peakDay
 paramsList$PeakDayInfectedCount <- bestPrediction$peakHeight
 paramsList$TotalPopulation <- popCount
 paramsList$Loss <- rmse
+
+
 
 exportJson <- toJSON(paramsList)
 write(exportJson, paramsOutFile)
@@ -316,10 +362,11 @@ plotObsTable <- function(predTable,p) {
   cols <- c("Infected" = "red", "Removed" = "green", "Susceptible"="blue")
   shapes <- c("factor"=1)
   
+  obsOnlyG$Date <- start_date + obsOnlyG$days - 1
+  
   res <-
     p +
-    xlab("Days since year 2020 start") +
-    geom_point(aes(x=days,y=people,fill=Group),data=obsOnlyG, shape=21,color='transparent') + 
+    geom_point(aes(x=Date,y=people,fill=Group),data=obsOnlyG, shape=21,color='transparent') + 
     scale_fill_manual(values = cols ,name="Observations") +
     theme_bw() #+
   res
@@ -344,9 +391,11 @@ plotPredTable <- function(predTable,p) {
 
   cols <- c("Infected" = "red", "Removed" = "green", "Susceptible"="blue")
 
+  modelOnlyG$Date <- start_date + modelOnlyG$days - 1
+  
   res <- p +
     scale_color_manual(values = cols,name="Model Prediction") +
-    geom_line(aes(x=days,y=people,color=Group),data=modelOnlyG,size=0.5)
+    geom_line(aes(x=Date,y=people,color=Group),data=modelOnlyG,size=0.5)
     
   #theme(legend.position = "bottom")
   res
@@ -375,22 +424,23 @@ p <- ggplot()
 p <- plotObsTable(bestPrediction$table,p)
 p <- plotPredTable(bestPrediction$table,p) +
   labs(title = paste0("SIR model fit [",descr,"]"),
-       subtitle = paste0("avg R0 = ",round(mean(r0),1),
-              " avg beta = ",round(mean(beta),2),
+       subtitle = paste0("recent R0 = ",round(recentR0,1),
+              " recent beta = ",round(recentBeta,2),
               ' gamma = ',round(gamma,2),
               ' loss = ',round(rmse),
               ' population = ',round(popCount)))+
-  scale_y_continuous(limits=c(0,max_val)) +
-  scale_x_continuous(limits=c(earliest_obs,latest_obs))
+  scale_y_continuous(limits=c(0,max_val))
+  #scale_x_continuous(limits=c(earliest_obs,latest_obs))
 
 p2 <- ggplot()
-yearPred <- getPrediction(optRes$par)
+yearPred <- getPrediction(optFineRes$par)
+max_pred_val <- max(c(obsSource$Infected,obsSource$Removed,yearPred$infected.pred,yearPred$removed.pred)) * 1.1
 p2 <- plotObsTable(bestPrediction$table,p2)
 p2 <- plotPredTable(yearPred,p2)
 p2 <- p2 + labs(title = "One year simulation",
                 caption = "COVID-19 epidemic dynamics model") +
   guides(fill=FALSE, color=FALSE) +
-  scale_y_continuous(limits=c(0,max_val))
+  scale_y_continuous(limits=c(0,max_pred_val))
 
 
 p3 <- grid.arrange(p, p2, nrow=2)
@@ -401,6 +451,6 @@ print("Figure saved")
 predCols <- ncol(yearPred)
 yearPred$Date <- as.character(as.Date(strptime('2020-01-01',format='%Y-%m-%d',tz="GMT"))+yearPred$days-1)
 yearPred <- yearPred[,c(predCols+1,1:predCols)]
-write.csv(yearPred, file=predTableOutFile)
+write.csv(yearPred, file=predTableOutFile, row.names = F)
 print("Predicion table written")
 print("Done")
