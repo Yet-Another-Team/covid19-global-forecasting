@@ -50,6 +50,8 @@ neededFromDr <- read.csv(neededFromDrFile)
 neededFromDrKeys <- neededFromDr[,1]
 print(paste0("Needed from dr locations:", length(neededFromDrKeys)))
 
+tsKaggleNeededKeys <- intersect(kaggleKeys,tsKeys)
+write.csv(tsKaggleNeededKeys,file=file.path(outDir,"tsKaggleNeededKeys.csv"), row.names = F)
 
 missingPopKeys <- setdiff(kaggleKeys,popKeys)
 print("")

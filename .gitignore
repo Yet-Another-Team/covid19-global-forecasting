@@ -1,9 +1,15 @@
 // ---alpheus-managed-start---
 **/*.hash
 .alpheus/storage
-SIR_beta_time/predictions/
-SIR_beta_time/figures/
-SIR_beta_time/params/
+1_SIR_const_beta/predictions/
+1_SIR_const_beta/figures/
+1_SIR_const_beta/params/
+2_SIR_spline_beta/predictions/
+2_SIR_spline_beta/figures/
+2_SIR_spline_beta/params/
+3_SEIR_spline_beta/predictions/
+3_SEIR_spline_beta/figures/
+3_SEIR_spline_beta/params/
 SigmoidConfirmedModel/dr_per_location_figures/*.png
 SigmoidConfirmedModel/dr_per_location_params/*.json
 SigmoidConfirmedModel/dr_per_location_predictions/*.csv

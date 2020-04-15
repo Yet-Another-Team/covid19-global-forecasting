@@ -32,17 +32,12 @@ for(pars_df_path in inFiles) {
     country <- key
   }
   
-  weeklyBeta <- json_data[["WeeklyBeta"]]
-  recentBeta <- weeklyBeta[length(weeklyBeta)]
   json_data <- within(json_data,rm(WeeklyBeta))
-  json_data["RecentBeta"] <- recentBeta
-  
-  weeklyR0 <- json_data[["WeeklyR0"]]
-  recentR0 <- weeklyR0[length(weeklyR0)]
   json_data <- within(json_data,rm(WeeklyR0))
-  json_data["RecentR0"] <- recentR0
-  
   json_data <- within(json_data,rm(BetaScales))
+  json_data <- within(json_data,rm(RawGamma))
+  json_data <- within(json_data,rm(bRaw))
+  json_data <- within(json_data,rm(RawFirstDayInfectedCount))
   
   doSkip = F
   for(entry in json_data) {

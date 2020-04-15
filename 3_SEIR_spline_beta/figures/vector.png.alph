@@ -1,0 +1,50 @@
+{
+  "FileFormatVersion": 1,
+  "Origin": {
+    "Case": "CommandOrigin",
+    "Fields": [
+      {
+        "Inputs": [
+          {
+            "RelativePath": "..\\..\\code\\fitSEIRmodel_splineBeta.R",
+            "Hash": null
+          },
+          {
+            "RelativePath": "..\\..\\jhu_ts_per_location_data\\*.csv",
+            "Hash": null
+          },
+          {
+            "RelativePath": "..\\..\\2_SIR_spline_beta\\params\\*.json",
+            "Hash": null
+          }
+        ],
+        "Outputs": [
+          {
+            "RelativePath": "..\\params\\*.json",
+            "Hash": null
+          },
+          {
+            "RelativePath": "*.png",
+            "Hash": null
+          },
+          {
+            "RelativePath": "..\\predictions\\*.csv",
+            "Hash": null
+          }
+        ],
+        "ResourceGroups": [
+          "cpu"
+        ],
+        "SuccessfulExitCodes": [
+          0
+        ],
+        "OutputIndex": 1,
+        "WorkingDirectory": "..\\..",
+        "Command": "Rscript $in1 $in2 $in3 $out1 $out2 $out3",
+        "Signature": "65641C33DED7404ADDE829B976F50EA95268FC29",
+        "OutputsCleanDisabled": false
+      }
+    ]
+  },
+  "IsTracked": false
+}
