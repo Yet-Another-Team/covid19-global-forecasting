@@ -1,0 +1,50 @@
+{
+  "FileFormatVersion": 1,
+  "Origin": {
+    "Case": "CommandOrigin",
+    "Fields": [
+      {
+        "Inputs": [
+          {
+            "RelativePath": "..\\..\\code\\fitSEIR_splineBeta_sigma_sweep.R",
+            "Hash": null
+          },
+          {
+            "RelativePath": "..\\..\\jhu_ts_per_location_data_gathered\\",
+            "Hash": null
+          },
+          {
+            "RelativePath": "..\\parameterSweep\\*.json",
+            "Hash": null
+          }
+        ],
+        "Outputs": [
+          {
+            "RelativePath": "*.json",
+            "Hash": null
+          },
+          {
+            "RelativePath": "..\\figures\\*.png",
+            "Hash": null
+          },
+          {
+            "RelativePath": "..\\simTables\\*.csv",
+            "Hash": null
+          }
+        ],
+        "ResourceGroups": [
+          "cpu"
+        ],
+        "SuccessfulExitCodes": [
+          0
+        ],
+        "OutputIndex": 0,
+        "WorkingDirectory": "..",
+        "Command": "Rscript $in1 $in2 $in3 $out1 $out2 $out3",
+        "Signature": "ACB52E50C42E6E7564F51C623FB69C9A71E17F3B",
+        "OutputsCleanDisabled": false
+      }
+    ]
+  },
+  "IsTracked": false
+}
