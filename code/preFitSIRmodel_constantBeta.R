@@ -15,7 +15,7 @@ predTableOutFile <- args[4]
 
 start_date <- as.Date(strptime('01-01-2020',format='%m-%d-%Y',tz="GMT"))
 
-optIters <- 50
+optIters <- 20
 iterEvalCount <- 500
 
 
@@ -65,7 +65,6 @@ getPrediction <- function(p) {
   beta = nonNegativeParam(p[["beta"]])
   N = popCount
   
-  zeroDayNum <- round(zeroDayNum,1) # to align with 0.1 simulation step
   odeDays <- seq(zeroDayNum, zeroDayNum+365, by = 0.1)
   
   
@@ -82,9 +81,16 @@ getPrediction <- function(p) {
   names(out) <- c('days','susceptible.pred','infected.pred','removed.pred')
   #print(out)
   
-  out$days <- round(out$days,1) # as days can disalign with odeDays
-  out <- out[out$days %% 1 ==0,]
-  out
+  firstOdeDay <- ceiling(out$days[1])
+  lastOdeDay <- floor(out$days[length(out$days)])
+  #day aligned
+  outAligned <- data.frame(days= firstOdeDay:lastOdeDay)
+  
+  outAligned$susceptible.pred <- approxfun(out$days,out$susceptible.pred)(outAligned$days)
+  outAligned$infected.pred <- approxfun(out$days,out$infected.pred)(outAligned$days)
+  outAligned$removed.pred <- approxfun(out$days,out$removed.pred)(outAligned$days)
+  
+  outAligned
 }
 
 getPredRunTable<-function(p) {

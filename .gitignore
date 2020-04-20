@@ -32,6 +32,7 @@ SigmoidConfirmedModel/per_location_params/
 SigmoidConfirmedModel/per_location_predictions/
 deathRateModel/deathCountIsSigmoidSpace.csv
 deathRateModel/deathSigmoidFitFigures/
+sigmaEvaluation
 keysAnalysis/
 venv
 archive
