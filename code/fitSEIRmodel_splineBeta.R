@@ -19,6 +19,7 @@ start_date <- as.Date(strptime('01-01-2020',format='%m-%d-%Y',tz="GMT"))
 
 fineIters <- 2
 
+sigma <- 1.0 / 3.0 # 3 days
 
 softplus.shift <- log(exp(1)-1)
 softplus <- function(x) {
@@ -66,7 +67,7 @@ getPrediction <- function(p) {
   zeroDayNum = p[["zeroDayNum"]]
   firstDayInfectedCount = nonNegativeParam(p[["firstDayInfectedCount"]])
   firstDayExposedCount <- nonNegativeParam(p[["firstDayExposedCount"]])
-  sigma = nonNegativeParam(p[["sigma"]])
+  #sigma = nonNegativeParam(p[["sigma"]])
   gamma = sigmoid(p[["gamma"]]) # fixed fraction "gamma"  of the infected group will recover during any given day
   N = popCount
   
@@ -96,11 +97,10 @@ getPrediction <- function(p) {
     get_beta <- function(t) nonNegBetaScales
   }
   
-  zeroDayNum <- round(zeroDayNum,1) # to align with 0.1 simulation step
   odeDays <- seq(zeroDayNum, zeroDayNum+365, by = 0.1)
   
   
-  odeParameters <- c(gamma=gamma,sigma=sigma, N=N)
+  odeParameters <- c(gamma=gamma, N=N)
   #odeParameters <- c(odeParameters,unlist(p[b1_idx:paramsCount])) # mixing up b1 .. bN
   odeZeroState <- c(S=N,E=firstDayExposedCount, I = firstDayInfectedCount,R=0)
   
@@ -114,9 +114,17 @@ getPrediction <- function(p) {
   names(out) <- c('days','susceptible.pred','exposed.pred','infected.pred','removed.pred')
   #print(out)
   
-  out$days <- round(out$days,1) # as days can disalign with odeDays
-  out <- out[out$days %% 1 ==0,]
-  out
+  firstOdeDay <- ceiling(out$days[1])
+  lastOdeDay <- floor(out$days[length(out$days)])
+  #day aligned
+  outAligned <- data.frame(days= firstOdeDay:lastOdeDay)
+  
+  outAligned$susceptible.pred <- approxfun(out$days,out$susceptible.pred)(outAligned$days)
+  outAligned$exposed.pred <- approxfun(out$days,out$exposed.pred)(outAligned$days)
+  outAligned$infected.pred <- approxfun(out$days,out$infected.pred)(outAligned$days)
+  outAligned$removed.pred <- approxfun(out$days,out$removed.pred)(outAligned$days)
+  
+  outAligned
 }
 
 getPredRunTable<-function(p) {
@@ -182,8 +190,8 @@ obs_match_loss <- function(loss,
                           infected.pred,
                           removed.pred) {
   (
-      loss(infected.obs,infected.pred) * 0.7 +
-      loss(removed.obs,removed.pred) * 0.3
+      (loss(infected.obs,infected.pred) +
+      loss(removed.obs,removed.pred))*0.5
   )
 }
 
@@ -209,9 +217,7 @@ toMinimize <- function(p) {
   
   startAlignmentPenalty <- abs(p[["zeroDayNum"]] - firstDayIdx)
   
-  highSigmaPenalty <- max(0,nonNegativeParam(p[["sigma"]]) - 1)
-  
-  loss <- l1 * (1 + betaChangePenalty*1e-1 + startAlignmentPenalty*1e-2 + highSigmaPenalty*1e-1)
+  loss <- l1 * (1 + betaChangePenalty*1e-1 + startAlignmentPenalty*1e-2)
   return(loss)
 }
 
@@ -228,8 +234,7 @@ startPar <- list(
   gamma=pretrainedPar[["Gamma"]],
   zeroDayNum = pretrainedPar[["FirstDayNum"]],
   firstDayInfectedCount = pretrainedPar[["FirstDayInfectedCount"]],
-  firstDayExposedCount = 0, # this will be reset on each train run setup
-  sigma = 2
+  firstDayExposedCount = 0 # this will be reset on each train run setup
 )
 bRaw <- pretrainedPar[["bRaw"]]
 if(length(bRaw) < bParamsCount)
@@ -251,7 +256,7 @@ totalParamCount <- length(startPar)
 i <- 1
 while(i <= fineIters) {
   set.seed(12323 + 123*i)
-  bDeltas <- rnorm(bParamsCount,mean=0,sd = 1e-3)
+  bDeltas <- rnorm(bParamsCount,mean=0,sd = 1e-3 * max(1,i-10))
   fineStartPars <- startPar
   fineStartPars$firstDayExposedCount <- runif(1,min = 0,max= 10)
   fineStartPars[firstBparamIdx:totalParamCount] <-
@@ -329,7 +334,7 @@ print("Fine optimization finished. Results")
 rmse = optFineRes$value
 zeroDayNum = optFineRes$par[["zeroDayNum"]]
 firstDayInfectedCount = nonNegativeParam(optFineRes$par[["firstDayInfectedCount"]])
-sigma = nonNegativeParam(optFineRes$par[["sigma"]])
+#sigma = nonNegativeParam(optFineRes$par[["sigma"]])
 gamma = sigmoid(optFineRes$par[["gamma"]])
 r0 = beta/gamma
 

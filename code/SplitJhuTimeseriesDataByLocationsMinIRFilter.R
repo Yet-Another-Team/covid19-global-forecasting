@@ -5,9 +5,8 @@ require(stringr)
 jhuInputDir <- args[1]
 populationCountFile <- args[2]
 outputPattern <- args[3] # should end with *.csv
-globalOutputFile <- args[4]
-minAllowedConfirmedCount <- as.integer(args[5])
-minAllowedRemovedCount <- as.integer(args[6])
+minAllowedConfirmedCount <- as.integer(args[4])
+minAllowedRemovedCount <- as.integer(args[5])
 
 asterixPos = regexpr('\\*',outputPattern)[1]
 outDir <- substr(outputPattern,1,asterixPos-2)
@@ -15,10 +14,11 @@ outDir <- substr(outputPattern,1,asterixPos-2)
 jhu_confirmed <- read.csv(file.path(jhuInputDir,'time_series_covid19_confirmed_global.csv'),fileEncoding = "UTF-8-BOM")
 jhu_deaths <- read.csv(file.path(jhuInputDir,'time_series_covid19_deaths_global.csv'),fileEncoding = "UTF-8-BOM")
 jhu_recovered <- read.csv(file.path(jhuInputDir,'time_series_covid19_recovered_global.csv'),fileEncoding = "UTF-8-BOM")
-
+print("TS read")
 #print(jhu_recovered)
 
 population <- read.csv(populationCountFile)
+print("Population counts read")
 
 # Some data reshaping functions
 get_count_df <- function(df_row) {
@@ -64,9 +64,6 @@ get_site_df <- function(province,country, N) {
   return(merged2)
 }
 
-globalTs <- NULL
-globalPopulation <- 7700000000
-
 for(i in (1:nrow(population))) {
   province <- as.character(population[i,1])
   country <- as.character(population[i,2])
@@ -77,10 +74,6 @@ for(i in (1:nrow(population))) {
     print(paste0("Can't find data for province '",province,"' country '",country,"'"))
     next;
   }
-  if(is.null(globalTs))
-    globalTs <- df
-  else
-    globalTs[,2:6] <- globalTs[,2:6] + df[,2:6]
   
   maxConfirmed <- max(df$Confirmed)
   if(is.na(maxConfirmed)) {
@@ -105,9 +98,5 @@ for(i in (1:nrow(population))) {
   #print(paste0('Writing ',outFile))
   write.csv(df,outFile, row.names = F)
 }
-
-#writing global
-globalTs$Susceptible <- globalPopulation - globalTs$Infected - globalTs$Removed
-write.csv(globalTs,globalOutputFile, row.names = F)
 
 print("Done")
