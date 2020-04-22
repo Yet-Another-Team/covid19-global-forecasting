@@ -190,8 +190,8 @@ obs_match_loss <- function(loss,
                           infected.pred,
                           removed.pred) {
   (
-      (loss(infected.obs,infected.pred) +
-      loss(removed.obs,removed.pred))*0.5
+      loss(infected.obs,infected.pred) * 0.7 +
+      loss(removed.obs,removed.pred) * 0.3
   )
 }
 
@@ -229,7 +229,7 @@ print(paste0(bParamsCount," modelling intervals to model"))
 
 pretrainedPar <- fromJSON(pretrainedFile)
 
-print("Loaded pretrained fit:")
+#print("Loaded pretrained fit:")
 startPar <- list(
   gamma=pretrainedPar[["Gamma"]],
   zeroDayNum = pretrainedPar[["FirstDayNum"]],
@@ -262,17 +262,18 @@ while(i <= fineIters) {
   fineStartPars[firstBparamIdx:totalParamCount] <-
     unlist(fineStartPars[firstBparamIdx:totalParamCount]) + bDeltas
   
-  methodToUse <- switch(i %% 3,
+  methodToUse <- switch((i %% 3) + 1,
+                        "CG",
                         "BFGS",
-                        "Nelder-Mead",
-                        "CG")
+                        "Nelder-Mead"
+                        )
   derivativeBasedMaxit <- as.integer(900+bParamsCount*100)
   nmMaxit <- as.integer(9000+bParamsCount*1000)
-  maxit <- switch(i %% 3,
+  maxit <- switch((i %% 3) +1,
                   derivativeBasedMaxit,
-                  nmMaxit,
-                  derivativeBasedMaxit
-  )
+                  derivativeBasedMaxit,
+                  nmMaxit
+                  )
   
   optCtr <- list(trace=0,maxit=maxit) # set trace to value higher than 0, if you want details
   
@@ -290,10 +291,10 @@ while(i <= fineIters) {
   options(warn=0)
   
   if(!is.null(finRes) && (is.null(optFineRes) || optFineRes$value > finRes$value)) {
-    print(paste0("Iteration ",i," (",methodToUse,"): fine loss improved from ",optFineRes$value," to ",finRes$value))
+    print(paste0("Iteration ",i," (",methodToUse,"): ----> fine loss improved from ",optFineRes$value," to ",finRes$value))
     optFineRes <- finRes
   } else {
-    print(paste0("Iteration ",i," (",methodToUse,"): fine loss did not improve (",finRes$value,")"))
+    print(paste0("Iteration ",i," (",methodToUse,"): ",finRes$value," (best is still ",optFineRes$value,")"))
   }
   if(is.null(finRes)) {
     fineIters <- fineIters+1
@@ -471,7 +472,7 @@ p <- plotPredTable(bestPrediction$table,p) +
 
 p2 <- ggplot()
 yearPred <- getPrediction(optFineRes$par)
-max_pred_val <- max(c(obsSource$Infected,obsSource$Removed,yearPred$infected.pred,yearPred$removed.pred)) * 1.1
+max_pred_val <- max(c(obsSource$Infected,obsSource$Removed,yearPred$infected.pred,yearPred$removed.pred, yearPred$exposed.pred)) * 1.1
 p2 <- plotObsTable(bestPrediction$table,p2)
 p2 <- plotPredTable(yearPred,p2)
 p2 <- p2 + labs(title = "One year simulation",

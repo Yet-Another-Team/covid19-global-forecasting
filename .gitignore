@@ -25,6 +25,7 @@ jhu_ts_per_location_single_infected_peak_data_gathered/
 official_data/
 // ---alpheus-managed-end---
 jhu_ts_per_location_data_gathered
+jhu_ts_per_location_data_min_filter
 jhu_dr_per_location_data_gathered
 jhu_all_per_location_data_gathered
 SigmoidConfirmedModel/per_location_figures/
