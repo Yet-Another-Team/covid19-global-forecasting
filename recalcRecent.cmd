@@ -1,4 +1,4 @@
-timeout 5400
+timeout 12600
 cd C:\ML\COVID-19\
 git pull
 cd C:\ML\

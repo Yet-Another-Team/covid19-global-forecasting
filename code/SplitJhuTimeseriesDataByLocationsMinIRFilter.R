@@ -64,6 +64,8 @@ get_site_df <- function(province,country, N) {
   return(merged2)
 }
 
+globalDf <- NULL
+
 for(i in (1:nrow(population))) {
   province <- as.character(population[i,1])
   country <- as.character(population[i,2])
@@ -75,6 +77,13 @@ for(i in (1:nrow(population))) {
     next;
   }
   
+  if(is.null(globalDf))
+    globalDf <- df
+  else {
+    df2 <- rbind(globalDf,df)
+    globalDf <- aggregate(. ~ dayNum, data = df2, sum)
+  }
+
   maxConfirmed <- max(df$Confirmed)
   if(is.na(maxConfirmed)) {
     print(paste0(province,' - ',country))
@@ -98,5 +107,9 @@ for(i in (1:nrow(population))) {
   #print(paste0('Writing ',outFile))
   write.csv(df,outFile, row.names = F)
 }
+
+globalDf$Susceptible <- 7700000000
+
+write.csv(globalDf,file.path(outDir,"Global.csv"), row.names = F)
 
 print("Done")

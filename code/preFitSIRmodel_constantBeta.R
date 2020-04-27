@@ -145,8 +145,8 @@ obs_match_loss <- function(loss,
                           infected.pred,
                           removed.pred) {
   (
-      loss(infected.obs,infected.pred) * 0.7 +
-      loss(removed.obs,removed.pred) * 0.3
+      loss(infected.obs,infected.pred) * 0.5 +
+      loss(removed.obs,removed.pred) * 0.5
   )
 }
 
